@@ -1,0 +1,104 @@
+﻿@model List<CommonDataAccess.Models.Effort>
+
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container">
+    <form method="get" action="@Url.Action("Index")">
+        <div class="row mb-3">
+            <div class="col-md-2">
+                <label for="year"><strong>Year</strong></label>
+                <select class="form-control form-control-sm" id="year" name="year">
+                    <option value="">Select Year</option>
+                    @for (int i = DateTime.Now.Year; i >= 2020; i--)
+                    {
+                        <option value="@i" @(ViewBag.Year == i ? "selected" : "")>@i</option>
+                    }
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label for="month"><strong>Month</strong></label>
+                <select class="form-control form-control-sm" id="month" name="month">
+                    <option value="">Select Month</option>
+                    @for (int i = 1; i <= 12; i++)
+                    {
+                        <option value="@i" @(ViewBag.Month == i ? "selected" : "")>@System.Globalization.DateTimeFormatInfo.CurrentInfo.GetMonthName(i)</option>
+                    }
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label for="day"><strong>Day</strong></label>
+                <select class="form-control form-control-sm" id="day" name="day">
+                    <option value="">Select Day</option>
+                    @for (int i = 1; i <= 31; i++)
+                    {
+                        <option value="@i" @(ViewBag.Day == i ? "selected" : "")>@i</option>
+                    }
+                </select>
+            </div>
+            @if (ViewBag.ShowUserDropdown)
+            {
+                <div class="col-md-2">
+                    <label for="user"><strong>User</strong></label>
+                    <select class="form-control form-control-sm" id="user" name="user">
+                        <option value="">Select User</option>
+                        @foreach (var user in ViewBag.Users)
+                        {
+                            <option value="@user.UserId" @(ViewBag.User == user.UserId ? "selected" : "")>@user.UserName</option>
+                        }
+                    </select>
+                </div>
+            }
+            <div class="col-md-2">
+                <label>&nbsp;</label>
+                <button type="submit" class="btn btn-primary btn-sm form-control">Submit</button>
+            </div>
+        </div>
+    </form>
+
+    @if (Model.Count > 0)
+    {
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>User</th>
+                    <th>Project</th>
+                    <th>Task</th>
+                    <th>Shift</th>
+                    <th>Submitted Date</th>
+                    <th>Hours Worked</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var effort in Model)
+                {
+                    <tr>
+                        <td>@effort.AssignTask.User.UserName</td>
+                        <td>@effort.AssignTask.Project.ProjectName</td>
+                        <td>@effort.AssignTask.Task.TaskName</td>
+                        <td>@effort.Shift.ShiftName (@effort.Shift.StartTime - @effort.Shift.EndTime)</td>
+                        <td>@effort.SubmittedDate.ToString("yyyy-MM-dd")</td>
+                        <td>@effort.HoursWorked</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+
+        <nav aria-label="Page navigation" class="d-flex justify-content-center">
+            <ul class="pagination">
+                @for (int i = 1; i <= ViewBag.TotalPages; i++)
+                {
+                    <li class="page-item @(i == ViewBag.PageNumber ? "active" : "")">
+                        <a class="page-link" href="@Url.Action("Index", new { year = ViewBag.Year, month = ViewBag.Month, day = ViewBag.Day, user = ViewBag.User, page = i })">@i</a>
+                    </li>
+                }
+            </ul>
+        </nav>
+    }
+    else
+    {
+        <p>No reports found.</p>
+    }
+</div>

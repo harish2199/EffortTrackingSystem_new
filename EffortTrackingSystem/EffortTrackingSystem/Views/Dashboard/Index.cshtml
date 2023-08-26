@@ -1,0 +1,102 @@
+﻿@model List<CommonDataAccess.Models.AssignTask>
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@if (ViewBag.LoggedIn != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        @ViewBag.LoggedIn
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="close">
+        </button>
+    </div>
+}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    Assigned Task
+                </div>
+                <div class="card-body">
+                    @if (Model != null && Model.Count > 0)
+                    {
+                        foreach (var item in Model)
+                        {
+                            if (item.Project != null && item.Task != null && item.Shift != null)
+                            {
+                                <p class="summary-info"><strong>Project:</strong> <span class="label label-info">@item.Project.ProjectName</span></p>
+                                <p class="summary-info"><strong>Task:</strong> <span class="label label-info">@item.Task.TaskName</span></p>
+                                <p class="summary-info"><strong>Shift:</strong> <span class="label label-info">@item.Shift.ShiftName</span></p>
+                                <p class="summary-info"><strong>Start Date:</strong> <span class="label label-info">@item.StartDate</span></p>
+                                <p class="summary-info"><strong>End Date:</strong> <span class="label label-info">@item.EndDate</span></p>
+                            }
+                            else
+                            {
+                                <p>Some properties are null.</p>
+                            }
+                        }
+                    }
+                    else
+                    {
+                        <p>No tasks assigned.</p>
+                    }
+
+                </div>
+            </div>
+        </div>
+        <!-- ... Summary... -->
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    Last Week Summary
+                </div>
+                <div class="card-body">
+                    @if (ViewBag.previousEfforts != null && ViewBag.previousEfforts.Count > 0)
+                    {
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Project</th>
+                                    <th>Task</th>
+                                    <th>Shift</th>
+                                    <th>Hours Worked</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var effort in ViewBag.previousEfforts)
+                                {
+                                    <tr>
+                                        <td>@effort.SubmittedDate.ToString("yyyy-MM-dd")</td>
+                                        <td>@effort.AssignTask.Project.ProjectName</td>
+                                        <td>@effort.AssignTask.Task.TaskName</td>
+                                        <td>@effort.Shift.ShiftName</td>
+                                        <td>@effort.HoursWorked</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    }
+                    else
+                    {
+                        <p>No Efforts available.</p>
+                    }
+                </div>
+            </div>
+            <div class="mt-3 d-flex justify-content-end">
+                <a href="/Reports/Index" class="btn btn-outline-secondary">View Reports</a>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script>
+    window.setTimeout(function () {
+        $(".alert").fadeTo(500, 0).slideUp(500, function () {
+            $(this).remove();
+        });
+    }, 1000);
+</script>

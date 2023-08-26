@@ -1,0 +1,45 @@
+﻿@model CommonDataAccess.Models.ShiftChange
+<head>
+    @Styles.Render("~/Content/css")
+    @Scripts.Render("~/bundles/modernizr")
+</head>
+<table class="table">
+    <thead>
+        <tr>
+            <th>User</th>
+            <th>Assigned Shift</th>
+            <th>New Shift</th>
+            <th>Date</th>
+            <th>Reason</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (ViewBag.PendingShiftChanges != null)
+        {
+            foreach (var shiftChange in ViewBag.PendingShiftChanges)
+            {
+                <tr>
+                    <td>@shiftChange.User.UserName</td>
+                    <td>
+                        @shiftChange.AssignedShift.ShiftName<br />
+                    </td>
+                    <td>
+                        @shiftChange.NewShift.ShiftName<br />
+                    </td>
+                    <td>@shiftChange.Date.ToString("yyyy-MM-dd")</td>
+                    <td>@shiftChange.Reason</td>
+                    <td>
+                        <form action="/admin/ShiftChange?shiftChangeId=@shiftChange.ShiftChangeId" method="post">
+                            <button type="submit" class="btn btn-success" name="action" value="Approved">Approve</button>
+                            <button type="submit" class="btn btn-danger" name="action" value="Rejected">Reject</button>
+                        </form>
+                    </td>
+                </tr>
+            }
+        }
+    </tbody>
+</table>
+
+<script src="~/bundles/jquery"></script>
+<script src="~/bundles/bootstrap"></script>

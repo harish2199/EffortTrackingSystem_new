@@ -1,0 +1,201 @@
+﻿@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@if (ViewBag.Message != null)
+{
+    <div class="alert alert-info alert-dismissible fade show" role="alert">
+        <strong>Information: </strong> @ViewBag.Message
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="close">
+        </button>
+    </div>
+}
+@if (ViewBag.LoggedIn != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+         @ViewBag.LoggedIn
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="close">
+        </button>
+    </div>
+}
+
+<div class="container1 mt-5">
+    <div class="row text-center">
+        <div class="col-md-4 mb-4">
+            <a href="#" class="text-decoration-none text-reset" data-bs-toggle="modal" data-bs-target="#createModal">
+                <div class="card card-hover h-100">
+                    <div class="card-body">
+                        <p class="card-text">Create User</p>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <div class="col-md-4 mb-4">
+            <a href="#" class="text-decoration-none text-reset" data-bs-toggle="modal" data-bs-target="#updateModal">
+                <div class="card card-hover h-100">
+                    <div class="card-body">
+                        <p class="card-text">Update User</p>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <div class="col-md-4 mb-4">
+            <a href="#" class="text-decoration-none text-reset" data-bs-toggle="modal" data-bs-target="#assignModal">
+                <div class="card card-hover h-100">
+                    <div class="card-body">
+                        <p class="card-text">Assign Task</p>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <div class="col-md-4 mb-4">
+            <a href="#" class="text-decoration-none text-reset" data-bs-toggle="modal" data-bs-target="#approveEffortsModal">
+                <div class="card card-hover h-100">
+                    <div class="card-body">
+                        <p class="card-text">Approve Efforts</p>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <div class="col-md-4 mb-4">
+            <a href="#" class="text-decoration-none text-reset" data-bs-toggle="modal" data-bs-target="#approveTimeOffsModal">
+                <div class="card card-hover h-100">
+                    <div class="card-body">
+                        <p class="card-text">Approve Time Offs</p>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <div class="col-md-4 mb-4">
+            <a href="#" class="text-decoration-none text-reset" data-bs-toggle="modal" data-bs-target="#approveShiftChangesModal">
+                <div class="card card-hover h-100">
+                    <div class="card-body">
+                        <p class="card-text">Approve Shift Changes</p>
+                    </div>
+                </div>
+            </a>
+        </div>
+    </div>
+</div>
+
+@* Modal for Create*@
+<div class="modal fade" id="createModal" data-bs-backdrop="static" tabindex="-1" aria-labelledby="createModalLabel" aria-hidden="true" style="backdrop-filter:blur(5px);">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="createModalLabel">Create User</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" onclick="resetForm('userForm')" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                @Html.Partial("~/Views/Partials/_CreateUserModal.cshtml")
+            </div>
+        </div>
+    </div>
+</div>
+@* Modal for Update*@
+<div class="modal fade" id="updateModal" data-bs-backdrop="static" tabindex="-1" aria-labelledby="updateModalLabel" aria-hidden="true" style="backdrop-filter: blur(5px);">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="updateModalLabel">Update User</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                @Html.Partial("~/Views/Partials/_UpdateUserModal.cshtml")
+            </div>
+        </div>
+    </div>
+</div>
+@* Modal for Assign Project, Task, and Shifts*@
+<div class="modal fade" id="assignModal" data-bs-backdrop="static" tabindex="-1" aria-labelledby="assignModalLabel" aria-hidden="true" style="backdrop-filter: blur(5px);">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="assignModalLabel">Assign Task</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" onclick="resetForm('taskForm')" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                @Html.Partial("~/Views/Partials/_AssignTaskModal.cshtml")
+            </div>
+        </div>
+    </div>
+</div>
+@* Modal for Approve Efforts*@
+<div class="modal fade" id="approveEffortsModal" data-bs-backdrop="static" tabindex="-1" aria-labelledby="approveEffortsModalLabel" aria-hidden="true" style="backdrop-filter: blur(5px);">
+    <div class="modal-dialog modal-dialog-centered modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="approveEffortsModalLabel">Approve Efforts</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                @Html.Partial("~/Views/Partials/_ApproveEffortsModal.cshtml")
+            </div>
+        </div>
+    </div>
+</div>
+@* Modal for Approve Time Offs*@
+<div class="modal fade" id="approveTimeOffsModal" data-bs-backdrop="static" tabindex="-1" aria-labelledby="approveTimeOffsModalLabel" aria-hidden="true" style="backdrop-filter: blur(5px);">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="approveTimeOffsModalLabel">Approve Time Offs</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                @Html.Partial("~/Views/Partials/_ApproveTimeOffsModal.cshtml")
+            </div>
+        </div>
+    </div>
+</div>
+@*Modal for Approve Shift Changes*@
+<div class="modal fade" id="approveShiftChangesModal" data-bs-backdrop="static" tabindex="-1" aria-labelledby="approveShiftChangesModalLabel" aria-hidden="true" style="backdrop-filter: blur(5px);">
+    <div class="modal-dialog modal-dialog-centered modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="approveShiftChangesModalLabel">Approve Shift Changes</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                @Html.Partial("~/Views/Partials/_ApproveShiftChangeModal.cshtml")
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<style>
+    .container1 {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 80vh;
+    }
+
+    .card-hover {
+        transition: transform 0.2s;
+    }
+
+        .card-hover:hover {
+            transform: scale(1.05);
+            cursor: pointer;
+        }
+
+    .modal-backdrop {
+        --bs-backdrop-bg: #00000026;
+    }
+</style>
+
+<script>
+    window.setTimeout(function () {
+        $(".alert").fadeTo(500, 0).slideUp(500, function () {
+            $(this).remove();
+        });
+    }, 1000);
+
+    function resetForm(formId) {
+        document.getElementById(formId).reset();
+    }
+</script>

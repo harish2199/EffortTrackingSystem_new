@@ -1,0 +1,21 @@
+﻿
+@{
+    Layout = null;
+}
+
+<head>
+    @Styles.Render("~/Content/css")
+    @Scripts.Render("~/bundles/modernizr")
+</head>
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-12">
+            <h2>Error</h2>
+            <p>@ViewBag.ErrorMessage</p>
+        </div>
+    </div>
+</div>
+
+@Scripts.Render("~/bundles/jquery")
+@Scripts.Render("~/bundles/bootstrap")

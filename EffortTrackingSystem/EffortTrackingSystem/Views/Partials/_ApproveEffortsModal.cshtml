@@ -1,0 +1,48 @@
+﻿@model CommonDataAccess.Models.Effort
+
+<head>
+    @Styles.Render("~/Content/css")
+    @Scripts.Render("~/bundles/modernizr")
+</head>
+
+@if (ViewBag.EffortsToAppove != null && ViewBag.EffortsToAppove.Count > 0)
+{
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>User Name</th>
+                <th>Date</th>
+                <th>Project</th>
+                <th>Task</th>
+                <th>Shift</th>
+                <th>Hours Worked</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var effort in ViewBag.EffortsToAppove)
+            {
+                <tr>
+                    <td>@effort.AssignTask.User.UserName</td>
+                    <td>@effort.SubmittedDate.ToString("yyyy-MM-dd")</td>
+                    <td>@effort.AssignTask.Project.ProjectName</td>
+                    <td>@effort.AssignTask.Task.TaskName</td>
+                    <td>@effort.Shift.ShiftName</td>
+                    <td>@effort.HoursWorked</td>
+                    <td>
+                        <form action="/admin/ApproveEffort?effortid=@effort.EffortId" method="post">
+                            <button type="submit" class="btn btn-success">Approve</button>
+                        </form>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <p>No Efforts available.</p>
+}
+
+<script src="~/bundles/jquery"></script>
+<script src="~/bundles/bootstrap"></script>

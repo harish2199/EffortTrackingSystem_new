@@ -1,0 +1,112 @@
+﻿@model CommonDataAccess.Models.User
+
+<head>
+    @Styles.Render("~/Content/css")
+    @Scripts.Render("~/bundles/modernizr")
+
+</head>
+
+<form id="updateUserForm" action="/admin/UserAction" method="post">
+    <div class="container">
+        <div class="row gx-3">
+            <div class="col-md-6">
+                <div class="mb-3">
+                    <select id="userDropdown" class="form-select form-select-sm" name="UserId" aria-label="users" required>
+                        <option selected>Select User</option>
+                        @if (ViewBag.Users != null)
+                        {
+                            foreach (var item in ViewBag.Users)
+                            {
+                                <option value="@item.UserId"
+                                        data-username="@item.UserName"
+                                        data-designation="@item.Designation"
+                                        data-useremail="@item.UserEmail"
+                                        data-password="@item.HashedPassword">
+                                    @item.UserName
+                                </option>
+                            }
+                        }
+                    </select>
+
+                    @Html.ValidationMessageFor(model => model.UserId, "", new { @class = "text-danger" })
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="mb-3">
+                    <input type="text" class="form-control form-control-sm" name="UserName" placeholder="User Name" required>
+                    @Html.ValidationMessageFor(model => model.UserName, "", new { @class = "text-danger" })
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="mb-3">
+                    <input type="text" class="form-control form-control-sm" name="Designation" placeholder="Designation" required>
+                    @Html.ValidationMessageFor(model => model.Designation, "", new { @class = "text-danger" })
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="mb-3">
+                    <input type="text" class="form-control form-control-sm" name="UserEmail" placeholder="User Email" required>
+                    @Html.ValidationMessageFor(model => model.UserEmail, "", new { @class = "text-danger" })
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="mb-3">
+                    <input type="text" class="form-control form-control-sm" name="HashedPassword" placeholder="Password" required>
+                    @Html.ValidationMessageFor(model => model.HashedPassword, "", new { @class = "text-danger" })
+                </div>
+            </div>
+            <input type="hidden" name="Role" value="User">
+            <div class="col-md-10">
+                <div class="d-grid">
+                    <button type="submit" class="btn btn-sm btn-secondary" name="action" value="update">Update</button>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="d-grid">
+                    <a href="#" class="btn btn-sm btn-primary" onclick="resetForm('updateUserForm')" data-bs-dismiss="modal" aria-label="Close">Discard</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+
+<script src="~/bundles/jquery"></script>
+<script src="~/bundles/bootstrap"></script>
+
+<script>
+    $(document).ready(function () {
+        $("#userDropdown").on("change", function () {
+            var selectedOption = $(this).find("option:selected");
+
+            if (selectedOption.val() !== "Select User") {
+                var username = selectedOption.data("username");
+                var designation = selectedOption.data("designation");
+                var useremail = selectedOption.data("useremail");
+                var password = selectedOption.data("password");
+
+                $("input[name='UserName']").val(username);
+                $("input[name='Designation']").val(designation);
+                $("input[name='UserEmail']").val(useremail);
+                $("input[name='HashedPassword']").val(password);
+            } else {
+                // Clear the form fields if no user is selected
+                resetFormFields();
+            }
+        });
+    });
+
+    function resetForm(formId) {
+        resetFormFields();
+        $("#" + formId)[0].reset(); // Reset the form using native reset method
+    }
+
+    function resetFormFields() {
+        $("input[name='UserName']").val("");
+        $("input[name='Designation']").val("");
+        $("input[name='UserEmail']").val("");
+        $("input[name='HashedPassword']").val("");
+        $("#userDropdown").val("Select User"); // Reset dropdown to default option
+    }
+</script>
+
