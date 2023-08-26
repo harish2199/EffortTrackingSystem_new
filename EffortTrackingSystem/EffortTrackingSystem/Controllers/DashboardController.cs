@@ -5,6 +5,8 @@ using log4net;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Mail;
+using System.Net;
 using System.Web;
 using System.Web.Mvc;
 
@@ -44,7 +46,7 @@ namespace EffortTrackingSystem.Controllers
                     .ToList();
 
                 ViewBag.PreviousEfforts = previousEfforts;
-
+                SendEmailToAdmin(userId);
                 return View(presentTasks);
             }
             catch (Exception ex)
@@ -53,6 +55,27 @@ namespace EffortTrackingSystem.Controllers
                 TempData["ErrorMessage"] = "An error occurred while loading the dashboard.";
                 return RedirectToAction("Error", "Home");
             }
+        }
+
+        private void SendEmailToAdmin(int? userId)
+        {
+            SmtpClient smtpClient = new SmtpClient("smtp.gmail.com")
+            {
+                Port = 587,
+                Credentials = new NetworkCredential("harishdasu18@gmail.com", "cucujclxwipqhelz"),
+                EnableSsl = true
+            };
+
+            MailMessage mailMessage = new MailMessage
+            {
+                From = new MailAddress("harishdasu18@gmail.com"),
+                Subject = "New Effort Submission",
+                Body = $"A new effort has been submitted by user {userId}."
+            };
+
+            mailMessage.To.Add("veera.dasu18@gmail.com");
+
+            smtpClient.Send(mailMessage);
         }
     }
 }

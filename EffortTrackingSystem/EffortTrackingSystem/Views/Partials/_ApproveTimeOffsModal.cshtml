@@ -5,19 +5,20 @@
     @Scripts.Render("~/bundles/modernizr")
 </head>
 
-<table class="table">
-    <thead>
-        <tr>
-            <th>User</th>
-            <th>Date</th>
-            <th>Reason</th>
-            <th>Action</th>
-        </tr>
-    </thead>
-    <tbody>
-        @if (ViewBag.PendingLeaves != null)
-        {
-            foreach (var leave in ViewBag.PendingLeaves)
+@if (ViewBag.PendingLeaves != null && ViewBag.PendingLeaves.Count > 0)
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>User</th>
+                <th>Date</th>
+                <th>Reason</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+
+            @foreach (var leave in ViewBag.PendingLeaves)
             {
                 <tr>
                     <td>@leave.User.UserName</td>
@@ -31,10 +32,17 @@
                     </td>
                 </tr>
             }
-        }
-    </tbody>
-</table>
 
+
+
+        </tbody>
+    </table>
+}
+else
+{
+    <p><strong>No leaves available to Approve.</strong></p>
+
+}
 
 <script src="~/bundles/jquery"></script>
 <script src="~/bundles/bootstrap"></script>

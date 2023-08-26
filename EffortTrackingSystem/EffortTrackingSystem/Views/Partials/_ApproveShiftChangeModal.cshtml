@@ -3,21 +3,22 @@
     @Styles.Render("~/Content/css")
     @Scripts.Render("~/bundles/modernizr")
 </head>
-<table class="table">
-    <thead>
-        <tr>
-            <th>User</th>
-            <th>Assigned Shift</th>
-            <th>New Shift</th>
-            <th>Date</th>
-            <th>Reason</th>
-            <th>Action</th>
-        </tr>
-    </thead>
-    <tbody>
-        @if (ViewBag.PendingShiftChanges != null)
-        {
-            foreach (var shiftChange in ViewBag.PendingShiftChanges)
+@if (ViewBag.PendingShiftChanges != null && ViewBag.PendingShiftChanges.Count > 0)
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>User</th>
+                <th>Assigned Shift</th>
+                <th>New Shift</th>
+                <th>Date</th>
+                <th>Reason</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+
+            @foreach (var shiftChange in ViewBag.PendingShiftChanges)
             {
                 <tr>
                     <td>@shiftChange.User.UserName</td>
@@ -37,9 +38,18 @@
                     </td>
                 </tr>
             }
-        }
-    </tbody>
-</table>
+
+
+
+
+        </tbody>
+    </table>
+}
+else
+{
+    <p><strong>No Shift Changes available to Approve.</strong></p>
+}
+
 
 <script src="~/bundles/jquery"></script>
 <script src="~/bundles/bootstrap"></script>
