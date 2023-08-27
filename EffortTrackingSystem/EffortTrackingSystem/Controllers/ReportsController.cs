@@ -23,8 +23,8 @@ namespace EffortTrackingSystem.Controllers
                 ViewBag.Day = day;
                 ViewBag.User = user;
 
-                bool isAdmin = Session["Role"].ToString().ToLower() == "admin";
-                int userId = (int)Session["Id"];
+                bool isAdmin = IsAdminUser();
+                int userId = GetCurrentUserId();
 
                 ViewBag.ShowUserDropdown = isAdmin;
                 ViewBag.Users = _userDataAccess.GetAllUsers().ToList();
@@ -59,10 +59,25 @@ namespace EffortTrackingSystem.Controllers
             }
             catch (Exception ex)
             {
-                _log.Error("An error occurred in the ReportsController: " + ex.Message);
-                TempData["ErrorMessage"] = "An error occurred while generating the report.";
+                HandleError(ex, "An error occurred while generating the report.");
                 return RedirectToAction("Error", "Home");
             }
+        }
+
+
+
+        private int GetCurrentUserId()
+        {
+            return (int)Session["Id"];
+        }
+        private bool IsAdminUser()
+        {
+            return Session["Role"].ToString().ToLower() == "admin";
+        }
+        private void HandleError(Exception ex, string errorMessage)
+        {
+            _log.Error($"{errorMessage} {ex.Message}");
+            TempData["ErrorMessage"] = errorMessage;
         }
     }
 }

@@ -32,8 +32,7 @@ namespace EffortTrackingSystem.Controllers
             }
             catch (Exception ex)
             {
-                _log.Error("An error occurred in Index method: " + ex.Message);
-                TempData["ErrorMessage"] = "An error occurred while processing your request.";
+                HandleError(ex, "An error occurred while processing your request.");
                 return RedirectToAction("Error", "Home");
             }
         }
@@ -70,8 +69,7 @@ namespace EffortTrackingSystem.Controllers
             }
             catch (Exception ex)
             {
-                _log.Error("An error occurred in UserAction method: " + ex.Message);
-                TempData["ErrorMessage"] = "An error occurred while performing user action.";
+                HandleError(ex, "An error occurred while performing user action.");
                 return RedirectToAction("Error", "Home");
             }
         }
@@ -93,8 +91,7 @@ namespace EffortTrackingSystem.Controllers
             }
             catch (Exception ex)
             {
-                _log.Error("An error occurred in AddTasks method: " + ex.Message);
-                TempData["ErrorMessage"] = "An error occurred while adding tasks.";
+                HandleError(ex, "An error occurred while adding tasks.");
                 return RedirectToAction("Error", "Home");
             }
         }
@@ -127,8 +124,7 @@ namespace EffortTrackingSystem.Controllers
             }
             catch (Exception ex)
             {
-                _log.Error("An error occurred in ApproveEffort method: " + ex.Message);
-                TempData["ErrorMessage"] = "An error occurred while approving effort.";
+                HandleError(ex, "An error occurred while approving effort.");
                 return RedirectToAction("Error", "Home");
             }
         }
@@ -142,7 +138,7 @@ namespace EffortTrackingSystem.Controllers
                 List<Leave> pendingleaves = _leaveDataAccess.GetPendingLeaves();
                 foreach (Leave leave in pendingleaves)
                 {
-                    if(leave.LeaveId == leaveid)
+                    if (leave.LeaveId == leaveid)
                     {
                         userName = leave.User.UserName;
                     }
@@ -153,11 +149,11 @@ namespace EffortTrackingSystem.Controllers
                 String body = null;
                 if (message.Contains("Approved"))
                 {
-                     body = $"Leave Approved for {userName} ";
+                    body = $"Leave Approved for {userName} ";
                 }
                 else if (message.Contains("Rejected"))
                 {
-                     body = $"Leave Rejected for {userName} ";
+                    body = $"Leave Rejected for {userName} ";
                 }
                 SendEmailTo(subject, body);
 
@@ -167,8 +163,7 @@ namespace EffortTrackingSystem.Controllers
             }
             catch (Exception ex)
             {
-                _log.Error("An error occurred in ApproveLeave method: " + ex.Message);
-                TempData["ErrorMessage"] = "An error occurred while approving or rejecting leave.";
+                HandleError(ex, "An error occurred while approving or rejecting leave.");
                 return RedirectToAction("Error", "Home");
             }
         }
@@ -206,10 +201,16 @@ namespace EffortTrackingSystem.Controllers
             }
             catch (Exception ex)
             {
-                _log.Error("An error occurred in ShiftChange method: " + ex.Message);
-                TempData["ErrorMessage"] = "An error occurred while processing shift change request.";
+                HandleError(ex, "An error occurred while processing shift change request.");
                 return RedirectToAction("Error", "Home");
             }
+        }
+
+
+        private void HandleError(Exception ex, string errorMessage)
+        {
+            _log.Error($"{errorMessage} {ex.Message}");
+            TempData["ErrorMessage"] = errorMessage;
         }
     }
 }
