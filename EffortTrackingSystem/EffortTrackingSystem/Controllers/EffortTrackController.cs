@@ -13,23 +13,6 @@ namespace EffortTrackingSystem.Controllers
     [UserAuthorize]
     public class EffortTrackController : BaseController
     {
-        private readonly AssignTaskDataAccess _assignTaskDataAccess;
-        private readonly EffortDataAccess _effortDataAccess;
-        private readonly LeaveDataAccess _leaveDataAccess;
-        private readonly ShiftChangeDataAccess _shiftChangeDataAccess;
-        private readonly ShiftDataAccess _shiftDataAccess;
-        private readonly ILog _log;
-
-        public EffortTrackController()
-        {
-            _assignTaskDataAccess = new AssignTaskDataAccess(_connectionString);
-            _effortDataAccess = new EffortDataAccess(_connectionString);
-            _leaveDataAccess = new LeaveDataAccess(_connectionString);
-            _shiftChangeDataAccess = new ShiftChangeDataAccess(_connectionString);
-            _shiftDataAccess = new ShiftDataAccess(_connectionString);
-            _log = LogManager.GetLogger(typeof(EffortTrackController));
-        }
-
         public ActionResult Index()
         {
             try
@@ -37,11 +20,10 @@ namespace EffortTrackingSystem.Controllers
                 ViewBag.Message = TempData["message"] as string;
                 int userId = (int)Session["Id"];
                 ViewBag.UserId = userId;
-                DateTime dateTime = DateTime.Now;
+                DateTime dateTime = DateTime.Now.Date; 
                 AssignTask presentTask = _assignTaskDataAccess.GetAssignedTasks(userId)
                     .Where(a => a.StartDate <= dateTime && a.EndDate >= dateTime)
                     .FirstOrDefault();
-
                 ViewBag.Shifts = _shiftDataAccess.GetShifts().ToList();
                 return View(presentTask);
             }
@@ -65,6 +47,12 @@ namespace EffortTrackingSystem.Controllers
                 }
 
                 string message = _effortDataAccess.SubmitEffort(effort);
+                if (message.Contains("submitted successfully"))
+                {
+                    string subject = $"New Effort Submission";
+                    String body = $"New Effort submitted by {Session["Name"]}";
+                    SendEmailTo(subject, body);
+                }
                 TempData["message"] = message;
                 return RedirectToAction("Index");
             }
@@ -87,6 +75,12 @@ namespace EffortTrackingSystem.Controllers
                 }
 
                 string message = _leaveDataAccess.SubmitLeave(leave);
+                if (message.Contains("submitted successfully"))
+                {
+                    string subject = $"Leave Request";
+                    String body = $"Leave requested submitted by {Session["Name"]}";
+                    SendEmailTo(subject, body);
+                }
                 TempData["message"] = message;
                 return RedirectToAction("Index");
             }
@@ -109,6 +103,12 @@ namespace EffortTrackingSystem.Controllers
                 }
 
                 string message = _shiftChangeDataAccess.SubmitShiftChange(shiftChange);
+                if (message.Contains("submitted successfully"))
+                {
+                    string subject = $"Shif Change Submission";
+                    String body = $"Shift changed requested submitted by {Session["Name"]}";
+                    SendEmailTo(subject,body);
+                }
                 TempData["message"] = message;
                 return RedirectToAction("Index");
             }

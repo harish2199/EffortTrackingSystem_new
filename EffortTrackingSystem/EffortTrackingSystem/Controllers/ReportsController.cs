@@ -13,17 +13,6 @@ namespace EffortTrackingSystem.Controllers
     [CommonAuthorize]
     public class ReportsController : BaseController
     {
-        private readonly EffortDataAccess _effortDataAccess;
-        private readonly UserDataAccess _userDataAccess;
-        private readonly ILog _log;
-
-        public ReportsController()
-        {
-            _effortDataAccess = new EffortDataAccess(_connectionString);
-            _userDataAccess = new UserDataAccess(_connectionString);
-            _log = LogManager.GetLogger(typeof(ReportsController));
-        }
-
         public ActionResult Index(int? year, int? month, int? day, int? user, int page = 1)
         {
             try

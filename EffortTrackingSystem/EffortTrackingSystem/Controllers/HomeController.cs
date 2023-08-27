@@ -13,17 +13,6 @@ namespace EffortTrackingSystem.Controllers
 {
     public class HomeController : BaseController
     {
-        private readonly AdminDataAccess _adminDataAccess;
-        private readonly UserDataAccess _userDataAccess;
-        private readonly ILog _log;
-
-        public HomeController()
-        {
-            _adminDataAccess = new AdminDataAccess(_connectionString);
-            _userDataAccess = new UserDataAccess(_connectionString);
-            _log = LogManager.GetLogger(typeof(HomeController));
-        }
-
         public ActionResult Login()
         {
             ViewBag.LoginFailed = TempData["LoginFailed"] as string;
@@ -95,6 +84,11 @@ namespace EffortTrackingSystem.Controllers
         public ActionResult Error()
         {
             ViewBag.ErrorMessage = TempData["ErrorMessage"];
+            return View();
+        }
+        public ActionResult ConnectionStringNotFound()
+        {
+            ViewBag.ErrorMessage = "Connection string not found in configuration.";
             return View();
         }
     }

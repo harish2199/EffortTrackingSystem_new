@@ -196,6 +196,7 @@
     <Content Include="Views\Partials\_UpdateUserModal.cshtml" />
     <Content Include="Views\Home\Login.cshtml" />
     <Content Include="Views\Home\Error.cshtml" />
+    <Content Include="Views\Home\ConnectionStringNotFound.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

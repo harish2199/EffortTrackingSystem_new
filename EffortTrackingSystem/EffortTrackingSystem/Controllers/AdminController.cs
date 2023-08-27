@@ -5,37 +5,13 @@ using log4net;
 using System;
 using System.Linq;
 using System.Web.Mvc;
+using System.Collections.Generic;
 
 namespace EffortTrackingSystem.Controllers
 {
     [AdminAuthorize]
     public class AdminController : BaseController
     {
-        private readonly AssignTaskDataAccess _assignTaskDataAccess;
-        private readonly EffortDataAccess _effortDataAccess;
-        private readonly LeaveDataAccess _leaveDataAccess;
-        private readonly ShiftChangeDataAccess _shiftChangeDataAccess;
-        private readonly ShiftDataAccess _shiftDataAccess;
-        private readonly ProjectDataAccess _projectDataAccess;
-        private readonly TaskDataAccess _taskDataAccess;
-        private readonly AdminDataAccess _adminDataAccess;
-        private readonly UserDataAccess _userDataAccess;
-        private readonly ILog _log;
-
-        public AdminController()
-        {
-            _assignTaskDataAccess = new AssignTaskDataAccess(_connectionString);
-            _effortDataAccess = new EffortDataAccess(_connectionString);
-            _leaveDataAccess = new LeaveDataAccess(_connectionString);
-            _shiftChangeDataAccess = new ShiftChangeDataAccess(_connectionString);
-            _shiftDataAccess = new ShiftDataAccess(_connectionString);
-            _projectDataAccess = new ProjectDataAccess(_connectionString);
-            _taskDataAccess = new TaskDataAccess(_connectionString);
-            _adminDataAccess = new AdminDataAccess(_connectionString);
-            _userDataAccess = new UserDataAccess(_connectionString);
-            _log = LogManager.GetLogger(typeof(AdminController));
-        }
-
         public ActionResult Index()
         {
             try
@@ -48,7 +24,6 @@ namespace EffortTrackingSystem.Controllers
                 ViewBag.Shifts = _shiftDataAccess.GetShifts();
                 ViewBag.EffortsToApprove = _effortDataAccess.GetEfforts()
                     .Where(e => e.Status == "Pending")
-                    .OrderByDescending(e => e.SubmittedDate)
                     .ToList();
                 ViewBag.PendingLeaves = _leaveDataAccess.GetPendingLeaves();
                 ViewBag.PendingShiftChanges = _shiftChangeDataAccess.GetPendingShiftChange();
@@ -129,7 +104,23 @@ namespace EffortTrackingSystem.Controllers
         {
             try
             {
+                string userName = string.Empty;
+                List<Effort> pendingefforts = _effortDataAccess.GetEfforts().Where(e => e.Status == "Pending").ToList();
+                foreach (Effort effort in pendingefforts)
+                {
+                    if (effort.EffortId == effortid)
+                    {
+                        userName = effort.AssignTask.User.UserName;
+                    }
+                }
+
                 string message = _effortDataAccess.ApproveEffort(effortid);
+                if (message.Contains("Approved"))
+                {
+                    string subject = $"Submitted Effort Status";
+                    String body = $"Effort Approved for {userName}";
+                    SendEmailTo(subject, body);
+                }
 
                 TempData["message"] = message;
                 return RedirectToAction("Index");
@@ -147,7 +138,29 @@ namespace EffortTrackingSystem.Controllers
         {
             try
             {
+                string userName = string.Empty;
+                List<Leave> pendingleaves = _leaveDataAccess.GetPendingLeaves();
+                foreach (Leave leave in pendingleaves)
+                {
+                    if(leave.LeaveId == leaveid)
+                    {
+                        userName = leave.User.UserName;
+                    }
+                }
+
                 string message = _leaveDataAccess.ApproveOrRejectLeave(leaveid, action);
+                string subject = $"Submitted Leave status";
+                String body = null;
+                if (message.Contains("Approved"))
+                {
+                     body = $"Leave Approved for {userName} ";
+                }
+                else if (message.Contains("Rejected"))
+                {
+                     body = $"Leave Rejected for {userName} ";
+                }
+                SendEmailTo(subject, body);
+
 
                 TempData["message"] = message;
                 return RedirectToAction("Index");
@@ -165,7 +178,28 @@ namespace EffortTrackingSystem.Controllers
         {
             try
             {
+                string userName = string.Empty;
+                List<ShiftChange> pendingshiftchanges = _shiftChangeDataAccess.GetPendingShiftChange();
+                foreach (ShiftChange shiftchange in pendingshiftchanges)
+                {
+                    if (shiftchange.ShiftChangeId == shiftChangeId)
+                    {
+                        userName = shiftchange.User.UserName;
+                    }
+                }
+
                 string message = _shiftChangeDataAccess.ApproveOrRejectShiftChange(shiftChangeId, action);
+                string subject = $"Submitted Shift Change status";
+                String body = null;
+                if (message.Contains("Approved"))
+                {
+                    body = $"Shift Change Approved for {userName} ";
+                }
+                else if (message.Contains("Rejected"))
+                {
+                    body = $"Shift Change Rejected for {userName} ";
+                }
+                SendEmailTo(subject, body);
 
                 TempData["message"] = message;
                 return RedirectToAction("Index");

@@ -222,5 +222,5 @@ BEGIN
     IF @newStatus = 'Approved'
         SET @outputMessage = 'Shift change approved successfully.';
     ELSE IF @newStatus = 'Rejected'
-        SET @outputMessage = 'Shift change rejected.';
+        SET @outputMessage = 'Shift change Rejected.';
 END;

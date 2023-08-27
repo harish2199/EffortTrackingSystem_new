@@ -5,7 +5,7 @@
     @Scripts.Render("~/bundles/modernizr")
 </head>
 
-@if (ViewBag.EffortsToAppove != null && ViewBag.EffortsToAppove.Count > 0)
+@if (ViewBag.EffortsToApprove != null && ViewBag.EffortsToApprove.Count > 0)
 {
     <table class="table table-bordered">
         <thead>
@@ -20,7 +20,7 @@
             </tr>
         </thead>
         <tbody>
-            @foreach (var effort in ViewBag.EffortsToAppove)
+            @foreach (var effort in ViewBag.EffortsToApprove)
             {
                 <tr>
                     <td>@effort.AssignTask.User.UserName</td>
