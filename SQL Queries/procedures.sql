@@ -91,6 +91,12 @@ BEGIN
         RETURN;
     END
    
+   ELSE IF @leave_status = 'Pending'
+    BEGIN
+        -- If leave  change is pending, disallow effort submission
+        SET @output_message = 'Effort cannot be submitted while there is a pending leave.';
+        RETURN;
+    END
     -- Check if there is no shift change for the submitted day
     IF NOT EXISTS (
         SELECT 1

@@ -5,6 +5,32 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
+@if (ViewBag.SuccessMessage != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <strong>Information: </strong> @ViewBag.SuccessMessage
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="close">
+        </button>
+    </div>
+
+
+
+    <script>
+        var successMsg = document.createElement("div");
+        successMsg.className = "alert alert-success alert-dismissible fade show";
+        successMsg.textContent = @ViewBag.SuccessMessage;
+        document.querySelector(".container").insertBefore(successMsg, document.querySelector(".row"));
+        window.location.href = '@Url.Action("Index","Reports")';
+    </script>
+}
+@if (ViewBag.ErrorMessage != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <strong>Information: </strong> @ViewBag.ErrorMessage
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="close">
+        </button>
+    </div>
+}
 <div class="container">
     <form method="get" action="@Url.Action("Index")">
         <div class="row mb-3">
@@ -29,9 +55,9 @@
                 </select>
             </div>
             <div class="col-md-2">
-                <label for="day"><strong>Day</strong></label>
+                <label for="day"><strong>Date</strong></label>
                 <select class="form-control form-control-sm" id="day" name="day">
-                    <option value="">Select Day</option>
+                    <option value="">Select Date</option>
                     @for (int i = 1; i <= 31; i++)
                     {
                         <option value="@i" @(ViewBag.Day == i ? "selected" : "")>@i</option>
@@ -51,12 +77,20 @@
                     </select>
                 </div>
             }
-            <div class="col-md-2">
-                <label>&nbsp;</label>
-                <button type="submit" class="btn btn-outline-secondary btn-sm form-control">Apply Filter</button>
+            <div class="col-md-2" style="margin-top:24px;">
+                <button type="submit" class="btn btn-warning btn-sm me-2">Apply Filter</button>
+                <a href="@Url.Action("Index","Reports")" class="btn btn-secondary btn-sm me-2">Clear</a>
+            </div>
+
+
+
+            <div class="col-md-2 d-flex align-items-center justify-content-end" style="margin-top:24px;">
+                <a class="btn btn-outline-success btn-sm" href="@Url.Action("Index", "Reports", new { year = ViewBag.Year,month = ViewBag.Month,day = ViewBag.Day, user = ViewBag.User, export = "csv" })">Export to CSV/Excel</a>
             </div>
         </div>
     </form>
+
+
 
     @if (Model.Count > 0)
     {
@@ -86,6 +120,8 @@
             </tbody>
         </table>
 
+
+
         <nav aria-label="Page navigation" class="d-flex justify-content-center">
             <ul class="pagination">
                 @for (int i = 1; i <= ViewBag.TotalPages; i++)
@@ -102,3 +138,8 @@
         <p>No reports found.</p>
     }
 </div>
+<script>window.setTimeout(function () {
+        $(".alert").fadeTo(500, 0).slideUp(500, function () {
+            $(this).remove();
+        });
+    }, 2000);</script>

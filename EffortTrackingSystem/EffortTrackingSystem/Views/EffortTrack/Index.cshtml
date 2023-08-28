@@ -74,7 +74,7 @@
                         <div class="form-group mb-3">
                             <input type="hidden" id="UserId" name="UserId" value="@ViewBag.UserId ">
                             <label for="date"><strong>Date:</strong></label>
-                            <input type="date" class="form-control" name="Date" required>
+                            <input type="date" class="form-control" name="Date" required min="@DateTime.Now.ToString("yyyy-MM-dd")">
                         </div>
                         <div class="form-group mb-3">
                             <label for="reason"><strong>Reason:</strong></label>
@@ -90,7 +90,7 @@
                         <input type="hidden" name="AssignedShiftId" value="@Model.ShiftId" />
                         <div class="form-group mb-3">
                             <label for="date"><strong>Date:</strong></label>
-                            <input type="date" class="form-control" name="Date" required>
+                            <input type="date" class="form-control" name="Date" required min="@DateTime.Now.ToString("yyyy-MM-dd")">
                         </div>
                         <div class="form-group mb-3">
                             <label for="shift_times"><strong>Shift:</strong></label>
@@ -126,12 +126,23 @@
 
         unavailabilityCheckbox.addEventListener("click", function () {
             unavailabilityForm.style.display = this.checked ? "block" : "none";
+            if (!this.checked) {
+                // Clear input fields in the leave form
+                unavailabilityForm.querySelector('[name="Date"]').value = "";
+                unavailabilityForm.querySelector('[name="Reason"]').value = "";
+            }
         });
 
 
 
         shiftChangeCheckbox.addEventListener("click", function () {
             shiftChangeForm.style.display = this.checked ? "block" : "none";
+            if (!this.checked) {
+                // Clear input fields in the shift change form
+                shiftChangeForm.querySelector('[name="Date"]').value = "";
+                shiftChangeForm.querySelector('[name="NewShiftId"]').value = "";
+                shiftChangeForm.querySelector('[name="Reason"]').value = "";
+            }
         });
     });
 </script>
