@@ -1,5 +1,4 @@
-﻿using CommonDataAccess;
-using CommonDataAccess.Models;
+﻿using Common.Models;
 using EffortTrackingSystem.Attributes;
 using log4net;
 using System;
@@ -21,7 +20,7 @@ namespace EffortTrackingSystem.Controllers
                 
 
                 List<AssignTask> presentTasks = GetPresentTasksForUser(userId);
-                List<Effort> previousEfforts = GetLatestApprovedEffortsForUser(userId);
+                List<Effort> previousEfforts = GetLastWeekApprovedEffortsForUser(userId);
 
                 ViewBag.PreviousEfforts = previousEfforts;
                 return View(presentTasks);
@@ -41,24 +40,26 @@ namespace EffortTrackingSystem.Controllers
         private List<AssignTask> GetPresentTasksForUser(int userId)
         {
             DateTime today = DateTime.Now.Date;
-            return _assignTaskDataAccess.GetAssignedTasks(userId)
+            return _assignTaskDataAccess.GetAssignedTasksById(userId)
                 .Where(a => a.StartDate <= today && a.EndDate >= today)
                 .ToList();
         }
 
-        private List<Effort> GetLatestApprovedEffortsForUser(int userId)
+        private List<Effort> GetLastWeekApprovedEffortsForUser(int userId)
         {
+            DateTime today = DateTime.Now.Date;
+            DateTime lastWeekStart = today.AddDays(-(int)today.DayOfWeek - 6);
+            DateTime lastWeekEnd = lastWeekStart.AddDays(4);
+
             return _effortDataAccess.GetEfforts()
-                .Where(e => e.AssignTask.User.UserId == userId && e.Status == "Approved")
-                .OrderByDescending(e => e.SubmittedDate)
-                .Take(7)
+                .Where(e => e.AssignTask.User.UserId == userId && e.Status == "Approved" && e.SubmittedDate >= lastWeekStart && e.SubmittedDate <= lastWeekEnd)
                 .ToList();
         }
 
         private void HandleDashboardError(Exception ex)
         {
             _log.Error("An error occurred in the Dashboard: " + ex.Message);
-            TempData["ErrorMessage"] = "An error occurred while loading the dashboard.";
+            TempData["ErrorMessage"] = "An error occurred while loading the dashboard." + ex;
         }
     }
 }

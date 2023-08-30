@@ -1,15 +1,15 @@
-﻿@model CommonDataAccess.Models.AssignTask
+﻿@model Common.Models.AssignTask
 
 <head>
     @Styles.Render("~/Content/css")
     @Scripts.Render("~/bundles/modernizr")
 </head>
-<form id="taskForm" action="/admin/AddTasks" method="post">
+<form id="taskForm" action="/admin/TaskAction" method="post">
     <div class="container">
         <div class="row gx-3">
             <div class="col-md-6">
                 <div class="mb-3">
-                    <select class="form-select form-select-sm" name="UserId" aria-label="users" required>
+                    <select id="userid" class="form-select form-select-sm" name="UserId" aria-label="users">
                         <option selected>Select User</option>
                         @if (ViewBag.Users != null)
                         {
@@ -24,7 +24,7 @@
             </div>
             <div class="col-md-6">
                 <div class="mb-3">
-                    <select class="form-select form-select-sm" name="ProjectId" aria-label="projects" required>
+                    <select id="projectid" class="form-select form-select-sm" name="ProjectId" aria-label="projects">
                         <option selected>Select Project</option>
                         @if (ViewBag.Projects != null)
                         {
@@ -39,7 +39,7 @@
             </div>
             <div class="col-md-6">
                 <div class="mb-3">
-                    <select class="form-select form-select-sm" name="TaskId" aria-label="tasks" required>
+                    <select id="taskid" class="form-select form-select-sm" name="TaskId" aria-label="tasks">
                         <option selected>Select task</option>
                         @if (ViewBag.Tasks != null)
                         {
@@ -54,7 +54,7 @@
             </div>
             <div class="col-md-6">
                 <div class="mb-3">
-                    <select class="form-select form-select-sm" name="ShiftId" aria-label="shifts" required>
+                    <select id="shiftid" class="form-select form-select-sm" name="ShiftId" aria-label="shifts">
                         <option selected>Select shift</option>
                         @if (ViewBag.Shifts != null)
                         {
@@ -70,14 +70,14 @@
             <div class="col-md-6">
                 <div class="mb-3">
                     <label for="date"><strong>Start Date:</strong></label>
-                    <input type="date" class="form-control" name="StartDate" required>
+                    <input type="date" id="startdate" class="form-control" name="StartDate">
                     @Html.ValidationMessageFor(model => model.StartDate, "", new { @class = "text-danger" })
                 </div>
             </div>
             <div class="col-md-6">
                 <div class="mb-3">
                     <label for="date"><strong>End Date:</strong></label>
-                    <input type="date" class="form-control" name="EndDate" required>
+                    <input type="date" id="enddate" class="form-control" name="EndDate">
                     @Html.ValidationMessageFor(model => model.EndDate, "", new { @class = "text-danger" })
 
                     <input type="hidden" name="Status" value="Pending">
@@ -85,7 +85,7 @@
             </div>
             <div class="col-md-10">
                 <div class="d-grid">
-                    <button type="submit" class="btn btn-sm btn-success">Assign</button>
+                    <button type="submit" class="btn btn-sm btn-success" name="action" value="assign">Assign</button>
                 </div>
             </div>
             <div class="col-md-2">
@@ -100,3 +100,49 @@
 <script src="~/bundles/jquery"></script>
 <script src="~/bundles/bootstrap"></script>
 
+<script>
+    $(document).ready(function () {
+        $("#taskForm").on("submit", function (e) {
+            var selectedOption = $('#userid').find("option:selected");
+            if (selectedOption.val() === "Select User") {
+                e.preventDefault(); 
+                $("select[name='UserId']").siblings(".text-danger").text("User is required.");
+            }
+        });
+        $("#taskForm").on("submit", function (e) {
+            var selectedOption = $('#projectid').find("option:selected");
+            if (selectedOption.val() === "Select Project") {
+                e.preventDefault();
+                $("select[name='ProjectId']").siblings(".text-danger").text("Project is required.");
+            }
+        });
+        $("#taskForm").on("submit", function (e) {
+            var selectedOption = $('#taskid').find("option:selected");
+            if (selectedOption.val() === "Select task") {
+                e.preventDefault();
+                $("select[name='TaskId']").siblings(".text-danger").text("Project is required.");
+            }
+        });
+        $("#taskForm").on("submit", function (e) {
+            var selectedOption = $('#shiftid').find("option:selected");
+            if (selectedOption.val() === "Select shift") {
+                e.preventDefault();
+                $("select[name='ShiftId']").siblings(".text-danger").text("Project is required.");
+            }
+        });
+        $("#taskForm").on("submit", function (e) {
+            var selectedOption = $('#startdate');
+            if (selectedOption.val() === "") {
+                e.preventDefault();
+                $("#startdate").siblings(".text-danger").text("Start date is required.");
+            }
+        });
+        $("#taskForm").on("submit", function (e) {
+            var selectedOption = $('#enddate');
+            if (selectedOption.val() === "") {
+                e.preventDefault();
+                $("#enddate").siblings(".text-danger").text("End date is required.");
+            }
+        });
+    });
+</script>

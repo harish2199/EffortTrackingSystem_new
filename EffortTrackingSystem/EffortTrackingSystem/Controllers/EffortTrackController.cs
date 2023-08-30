@@ -1,5 +1,4 @@
-﻿using CommonDataAccess;
-using CommonDataAccess.Models;
+﻿using Common.Models;
 using EffortTrackingSystem.Attributes;
 using log4net;
 using System;
@@ -37,16 +36,17 @@ namespace EffortTrackingSystem.Controllers
         {
             try
             {
+                int userId = GetCurrentUserId();
                 if (!ModelState.IsValid)
                 {
                     return RedirectToAction("Index");
                 }
 
-                string message = _effortDataAccess.SubmitEffort(effort);
+                string message = _effortDataAccess.SubmitEffort(effort, userId);
                 if (message.Contains("submitted successfully"))
                 {
                     string subject = $"New Effort Submission";
-                    String body = $"New Effort submitted by {Session["Name"]}";
+                    string body = $"New Effort submitted by {Session["Name"]}";
                     SendEmailTo(subject, body);
                 }
 
@@ -74,7 +74,7 @@ namespace EffortTrackingSystem.Controllers
                 if (message.Contains("submitted successfully"))
                 {
                     string subject = $"Leave Request";
-                    String body = $"Leave requested submitted by {Session["Name"]}";
+                    string body = $"Leave requested submitted by {Session["Name"]}";
                     SendEmailTo(subject, body);
                 }
 
@@ -102,7 +102,7 @@ namespace EffortTrackingSystem.Controllers
                 if (message.Contains("submitted successfully"))
                 {
                     string subject = $"Shift Change Submission";
-                    String body = $"Shift changed requested submitted by {Session["Name"]}";
+                    string body = $"Shift changed requested submitted by {Session["Name"]}";
                     SendEmailTo(subject, body);
                 }
 
@@ -124,14 +124,14 @@ namespace EffortTrackingSystem.Controllers
         private AssignTask GetPresentTasksForUser(int userId)
         {
             DateTime today = DateTime.Now.Date;
-            return _assignTaskDataAccess.GetAssignedTasks(userId)
+            return _assignTaskDataAccess.GetAssignedTasksById(userId)
                 .Where(a => a.StartDate <= today && a.EndDate >= today)
                 .FirstOrDefault();
         }
         private void HandleError(Exception ex, string errorMessage)
         {
             _log.Error($"{errorMessage} {ex.Message}");
-            TempData["ErrorMessage"] = errorMessage;
+            TempData["ErrorMessage"] = errorMessage + ex;
         }
     }
 }

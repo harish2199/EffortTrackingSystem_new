@@ -3,7 +3,9 @@ using System.Configuration;
 using System.Net;
 using System.Net.Mail;
 using System.Web.Mvc;
-using CommonDataAccess;
+using Common;
+//using CommonDataAccess;
+using NewCommonDataAccess;
 using log4net;
 
 namespace EffortTrackingSystem.Controllers
@@ -11,20 +13,20 @@ namespace EffortTrackingSystem.Controllers
     public class BaseController : Controller
     {
         protected readonly string _connectionString;
-        protected readonly AssignTaskDataAccess _assignTaskDataAccess;
-        protected readonly EffortDataAccess _effortDataAccess;
-        protected readonly LeaveDataAccess _leaveDataAccess;
-        protected readonly ShiftChangeDataAccess _shiftChangeDataAccess;
-        protected readonly ShiftDataAccess _shiftDataAccess;
-        protected readonly ProjectDataAccess _projectDataAccess;
-        protected readonly TaskDataAccess _taskDataAccess;
-        protected readonly AdminDataAccess _adminDataAccess;
-        protected readonly UserDataAccess _userDataAccess;
+        protected readonly IAssignTaskDataAccess _assignTaskDataAccess;
+        protected readonly IEffortDataAccess _effortDataAccess;
+        protected readonly ILeaveDataAccess _leaveDataAccess;
+        protected readonly IShiftChangeDataAccess _shiftChangeDataAccess;
+        protected readonly IShiftDataAccess _shiftDataAccess;
+        protected readonly IProjectDataAccess _projectDataAccess;
+        protected readonly ITaskDataAccess _taskDataAccess;
+        protected readonly IAdminDataAccess _adminDataAccess;
+        protected readonly IUserDataAccess _userDataAccess;
         protected readonly ILog _log;
 
         public BaseController()
         {
-            _connectionString = ConfigurationManager.ConnectionStrings?["MyConnectionString"]?.ConnectionString;
+            _connectionString = ConfigurationManager.ConnectionStrings?["EffortTrackingSystemEntities"]?.ConnectionString;
             _assignTaskDataAccess = new AssignTaskDataAccess(_connectionString);
             _effortDataAccess = new EffortDataAccess(_connectionString);
             _leaveDataAccess = new LeaveDataAccess(_connectionString);
@@ -41,7 +43,7 @@ namespace EffortTrackingSystem.Controllers
         {
             if (_connectionString == null)
             {
-                filterContext.Result = RedirectToAction("ConnectionStringNotFound", "Error");
+                filterContext.Result = RedirectToAction("ConnectionStringNotFound", "Home");
             }
 
             base.OnActionExecuting(filterContext);
@@ -49,18 +51,23 @@ namespace EffortTrackingSystem.Controllers
 
         protected void SendEmailTo(string subject, string body)
         {
-            using (SmtpClient smtpClient = new SmtpClient("smtp.gmail.com"))
+            string smtpclent = ConfigurationManager.AppSettings["smtpClient"];
+            string mailSender = ConfigurationManager.AppSettings["MailSender"];
+            string senderPassword = ConfigurationManager.AppSettings["SenderPassword"];
+            string mailReceiver = ConfigurationManager.AppSettings["MailReceiver"];
+
+            using (SmtpClient smtpClient = new SmtpClient(smtpclent))
             {
                 smtpClient.Port = 587;
-                smtpClient.Credentials = new NetworkCredential("harishdasu18@gmail.com", "cucujclxwipqhelz");
+                smtpClient.Credentials = new NetworkCredential(mailSender, senderPassword);
                 smtpClient.EnableSsl = true;
 
                 using (MailMessage mailMessage = new MailMessage())
                 {
-                    mailMessage.From = new MailAddress("harishdasu18@gmail.com");
+                    mailMessage.From = new MailAddress(mailSender);
                     mailMessage.Subject = subject;
                     mailMessage.Body = body;
-                    mailMessage.To.Add("veera.dasu18@gmail.com");
+                    mailMessage.To.Add(mailReceiver);
 
                     smtpClient.Send(mailMessage);
                 }

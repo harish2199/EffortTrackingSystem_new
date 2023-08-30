@@ -7,6 +7,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EffortTrackingSystem", "Eff
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CommonDataAccess", "CommonDataAccess\CommonDataAccess.csproj", "{19AAAA52-4009-4B83-B0EC-B5358F4809A8}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NewCommonDataAccess", "NewCommonDataAccess\NewCommonDataAccess.csproj", "{4DA056BB-C0D5-4BD8-AC90-714230F6A115}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Common", "Common\Common.csproj", "{5A333B7E-EC1C-4966-8AA7-F76222ACE4EF}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +25,14 @@ Global
 		{19AAAA52-4009-4B83-B0EC-B5358F4809A8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{19AAAA52-4009-4B83-B0EC-B5358F4809A8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{19AAAA52-4009-4B83-B0EC-B5358F4809A8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4DA056BB-C0D5-4BD8-AC90-714230F6A115}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4DA056BB-C0D5-4BD8-AC90-714230F6A115}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4DA056BB-C0D5-4BD8-AC90-714230F6A115}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4DA056BB-C0D5-4BD8-AC90-714230F6A115}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5A333B7E-EC1C-4966-8AA7-F76222ACE4EF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5A333B7E-EC1C-4966-8AA7-F76222ACE4EF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5A333B7E-EC1C-4966-8AA7-F76222ACE4EF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5A333B7E-EC1C-4966-8AA7-F76222ACE4EF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

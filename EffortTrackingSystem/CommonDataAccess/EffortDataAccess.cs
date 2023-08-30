@@ -1,10 +1,11 @@
-﻿using CommonDataAccess.Models;
+﻿using Common.Models;
 using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Data;
 using System.Linq;
 using System.Text;
+using Common;
 
 namespace CommonDataAccess
 {
@@ -206,6 +207,11 @@ namespace CommonDataAccess
             }
 
             return approvedEfforts;
+        }
+
+        public string SubmitEffort(Effort effort, int userid)
+        {
+            throw new NotImplementedException();
         }
     }
 }

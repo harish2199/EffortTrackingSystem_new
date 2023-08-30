@@ -14,7 +14,7 @@
 @if (ViewBag.LoggedIn != null)
 {
     <div class="alert alert-success alert-dismissible fade show" role="alert">
-         @ViewBag.LoggedIn
+        @ViewBag.LoggedIn
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="close">
         </button>
     </div>
@@ -45,6 +45,15 @@
                 <div class="card card-hover h-100">
                     <div class="card-body">
                         <p class="card-text">Assign Task</p>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <div class="col-md-4 mb-4">
+            <a href="#" class="text-decoration-none text-reset" data-bs-toggle="modal" data-bs-target="#updateTaskModal">
+                <div class="card card-hover h-100">
+                    <div class="card-body">
+                        <p class="card-text">Update Task</p>
                     </div>
                 </div>
             </a>
@@ -121,6 +130,20 @@
         </div>
     </div>
 </div>
+@*Modal for Updating Project, Task and Shifts*@
+<div class="modal fade" id="updateTaskModal" data-bs-backdrop="static" tabindex="-1" aria-labelledby="updateTaskModalLabel" aria-hidden="true" style="backdrop-filter: blur(5px);">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="updateTaskModalLabel">Update Assigned Task</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" onclick="resetForm('updateTaskForm')" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                @Html.Partial("~/Views/Partials/_UpdateTaskModal.cshtml")
+            </div>
+        </div>
+    </div>
+</div>
 @* Modal for Approve Efforts*@
 <div class="modal fade" id="approveEffortsModal" data-bs-backdrop="static" tabindex="-1" aria-labelledby="approveEffortsModalLabel" aria-hidden="true" style="backdrop-filter: blur(5px);">
     <div class="modal-dialog modal-dialog-centered modal-xl">
@@ -193,6 +216,6 @@
         $(".alert").fadeTo(500, 0).slideUp(500, function () {
             $(this).remove();
         });
-    }, 1000);
+    }, 5000);
 
 </script>

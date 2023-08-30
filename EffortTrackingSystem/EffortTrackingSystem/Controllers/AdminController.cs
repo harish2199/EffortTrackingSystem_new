@@ -1,5 +1,4 @@
-﻿using CommonDataAccess.Models;
-using CommonDataAccess;
+﻿using Common.Models;
 using EffortTrackingSystem.Attributes;
 using log4net;
 using System;
@@ -27,6 +26,13 @@ namespace EffortTrackingSystem.Controllers
                     .ToList();
                 ViewBag.PendingLeaves = _leaveDataAccess.GetPendingLeaves();
                 ViewBag.PendingShiftChanges = _shiftChangeDataAccess.GetPendingShiftChange();
+                List<AssignTask> assignedTasks = new List<AssignTask>();
+                foreach (var user in _userDataAccess.GetAllUsers())
+                {
+                    List<AssignTask> userAssignedTasks = _assignTaskDataAccess.GetAssignedTasksById(user.UserId);
+                    assignedTasks.AddRange(userAssignedTasks);
+                }
+                ViewBag.AssignedTasks = assignedTasks;
 
                 return View();
             }
@@ -38,7 +44,7 @@ namespace EffortTrackingSystem.Controllers
         }
 
         [HttpPost]
-        public ActionResult UserAction(User user, string action)
+        public ActionResult UserAction(Common.Models.User user, string action)
         {
             try
             {
@@ -46,9 +52,8 @@ namespace EffortTrackingSystem.Controllers
                 {
                     if (!ModelState.IsValid)
                     {
-                        return PartialView("~/Views/Partials/_CreateUserModal.cshtml", user);
+                        return View("Index");
                     }
-
                     string message = _userDataAccess.AddUser(user);
 
                     TempData["message"] = message;
@@ -58,8 +63,9 @@ namespace EffortTrackingSystem.Controllers
                 {
                     if (!ModelState.IsValid)
                     {
-                        return PartialView("~/Views/Partials/_UpdateUserModal.cshtml", user);
+                        return View("Index");
                     }
+
                     string message = _userDataAccess.UpdateUser(user);
 
                     TempData["message"] = message;
@@ -69,41 +75,54 @@ namespace EffortTrackingSystem.Controllers
             }
             catch (Exception ex)
             {
-                HandleError(ex, "An error occurred while performing user action.");
+                HandleError(ex, $"An error occurred while performing user action. {ex}");
                 return RedirectToAction("Error", "Home");
             }
         }
-
         [HttpPost]
-        public ActionResult AddTasks(AssignTask assignTask)
+        public ActionResult TaskAction(AssignTask assignTask, string action)
         {
             try
             {
-                if (!ModelState.IsValid)
+                if (action == "assign")
                 {
-                    return PartialView("~/Views/Partials/_AssignTaskModal.cshtml", assignTask);
+                    if (!ModelState.IsValid)
+                    {
+                        return View("Index");
+                    }
+                    string message = _assignTaskDataAccess.AssignTask(assignTask);
+
+                    TempData["message"] = message;
+                    return RedirectToAction("Index");
                 }
+                else if (action == "update")
+                {
+                    if (!ModelState.IsValid)
+                    {
+                        return View("Index");
+                    }
 
-                string message = _assignTaskDataAccess.AssignTask(assignTask);
+                    string message = _assignTaskDataAccess.UpdateAssignTask(assignTask); 
 
-                TempData["message"] = message;
-                return RedirectToAction("Index");
+                    TempData["message"] = message;
+                    return RedirectToAction("Index");
+                }
+                return RedirectToAction("Index", "Admin");
             }
             catch (Exception ex)
             {
-                HandleError(ex, "An error occurred while adding tasks.");
+                HandleError(ex, "An error occurred while performing task action.");
                 return RedirectToAction("Error", "Home");
             }
         }
-
         [HttpPost]
         public ActionResult ApproveEffort(int effortid)
         {
             try
             {
                 string userName = string.Empty;
-                List<Effort> pendingefforts = _effortDataAccess.GetEfforts().Where(e => e.Status == "Pending").ToList();
-                foreach (Effort effort in pendingefforts)
+                List<Common.Models.Effort> pendingefforts = _effortDataAccess.GetEfforts().Where(e => e.Status == "Pending").ToList();
+                foreach (Common.Models.Effort effort in pendingefforts)
                 {
                     if (effort.EffortId == effortid)
                     {
@@ -135,8 +154,8 @@ namespace EffortTrackingSystem.Controllers
             try
             {
                 string userName = string.Empty;
-                List<Leave> pendingleaves = _leaveDataAccess.GetPendingLeaves();
-                foreach (Leave leave in pendingleaves)
+                List<Common.Models.Leave> pendingleaves = _leaveDataAccess.GetPendingLeaves();
+                foreach (Common.Models.Leave leave in pendingleaves)
                 {
                     if (leave.LeaveId == leaveid)
                     {
@@ -201,16 +220,15 @@ namespace EffortTrackingSystem.Controllers
             }
             catch (Exception ex)
             {
-                HandleError(ex, "An error occurred while processing shift change request.");
+                HandleError(ex, "An error occurred while processing shift change request." + ex);
                 return RedirectToAction("Error", "Home");
             }
         }
 
-
         private void HandleError(Exception ex, string errorMessage)
         {
             _log.Error($"{errorMessage} {ex.Message}");
-            TempData["ErrorMessage"] = errorMessage;
+            TempData["ErrorMessage"] = errorMessage + ex;
         }
     }
 }

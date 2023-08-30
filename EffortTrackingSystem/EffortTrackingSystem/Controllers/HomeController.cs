@@ -1,5 +1,5 @@
 ﻿using CommonDataAccess;
-using CommonDataAccess.Models;
+using Common.Models;
 using log4net;
 using System;
 using System.Collections.Generic;
@@ -25,10 +25,18 @@ namespace EffortTrackingSystem.Controllers
         {
             try
             {
-                List<User> users = _userDataAccess.GetAllUsers();
-                foreach (var user in users)
+                string saltvalue = "";
+                string ExistingHashedPassword = "";
+                bool result = false;    
+
+                User user = _userDataAccess.GetUserDetails(email);
+
+                if (user != null)
                 {
-                    if (user.UserEmail == email && user.HashedPassword == password)
+                    saltvalue = user.SaltValue;
+                    ExistingHashedPassword = user.HashedPassword;
+                    result = CompareHashedPasswords(password, ExistingHashedPassword, saltvalue);
+                    if (result)
                     {
                         Session["Id"] = user.UserId;
                         Session["Name"] = user.UserName;
@@ -39,10 +47,14 @@ namespace EffortTrackingSystem.Controllers
                     }
                 }
 
-                List<Admin> admins = _adminDataAccess.GetAllAdmins();
-                foreach (var admin in admins)
+                Admin admin = _adminDataAccess.GetAdminDetails(email);
+
+                if(admin != null)
                 {
-                    if (admin.AdminEmail == email && admin.HashedPassword == password)
+                    saltvalue = admin.SaltValue;
+                    ExistingHashedPassword = admin.HashedPassword;
+                    result = CompareHashedPasswords(password, ExistingHashedPassword, saltvalue);
+                    if (result)
                     {
                         Session["Id"] = admin.AdminId;
                         Session["Name"] = admin.AdminName;
@@ -53,13 +65,14 @@ namespace EffortTrackingSystem.Controllers
                     }
                 }
 
+
                 TempData["LoginFailed"] = "Login Failed. Check credentials.";
                 return RedirectToAction("Login");
             }
             catch (Exception ex)
             {
                 _log.Error("An error occurred while processing login: " + ex.Message);
-                TempData["ErrorMessage"] = "An error occurred while processing your request.";
+                TempData["ErrorMessage"] = "An error occurred while processing your request." + ex;
                 return RedirectToAction("Error", "Home");
             }
         }
@@ -90,6 +103,22 @@ namespace EffortTrackingSystem.Controllers
         {
             ViewBag.ErrorMessage = "Connection string not found in configuration.";
             return View();
+        }
+
+
+        public byte[] GetHash(string PlainPassword, string Salt)
+        {
+            byte[] byteArray = Encoding.Unicode.GetBytes(String.Concat(Salt, PlainPassword));
+            using (SHA256Managed sha256 = new SHA256Managed())
+            {
+                byte[] hashedBytes = sha256.ComputeHash(byteArray);
+                return hashedBytes;
+            }
+        }
+        public bool CompareHashedPasswords(string UserInputPassword, string ExistingHashedPassword, string Salt)
+        {
+            string UserInputtedHashedPassword = Convert.ToBase64String(GetHash(UserInputPassword, Salt));
+            return ExistingHashedPassword == UserInputtedHashedPassword;
         }
     }
 }

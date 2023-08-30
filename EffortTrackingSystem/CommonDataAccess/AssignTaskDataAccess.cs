@@ -1,10 +1,11 @@
-﻿using CommonDataAccess.Models;
+﻿using Common.Models;
 using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Data;
 using System.Linq;
 using System.Text;
+using Common;
 
 namespace CommonDataAccess
 {
@@ -51,7 +52,7 @@ namespace CommonDataAccess
             }
         }
 
-        public List<AssignTask> GetAssignedTasks(int userId)
+        public List<AssignTask> GetAssignedTasksById(int userId)
         {
             List<AssignTask> tasks = new List<AssignTask>();
 
@@ -108,6 +109,11 @@ namespace CommonDataAccess
             }
 
             return tasks;
+        }
+
+        public string UpdateAssignTask(AssignTask assignTask)
+        {
+            throw new NotImplementedException();
         }
     }
 }

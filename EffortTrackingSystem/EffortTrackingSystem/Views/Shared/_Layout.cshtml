@@ -24,6 +24,11 @@
                     <path fill-rule="evenodd" d="M2.5 12a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5z" />
                 </svg>
             </button>
+            @{
+                string name = (string)Session["Name"];
+                string role = (string)Session["Role"];
+                string adminRole = System.Configuration.ConfigurationManager.AppSettings["adminRole"];
+            }
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
                 <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                     <li class="nav-item">
@@ -35,13 +40,14 @@
                     <li class="nav-item">
                         <a class="nav-link" href="/Reports/Index">Reports</a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/admin/Index">Admin</a>
-                    </li>
+                    @if (role.ToLower() == adminRole.ToLower())
+                    {
+                        <li class="nav-item">
+                            <a class="nav-link" href="/admin/Index">Admin</a>
+                        </li>
+                    }
                 </ul>
-                @{
-                    string name = (string)Session["Name"];
-                }
+
                 <form class="d-flex">
                     <div class="hstack gap-3">
                         <div class="text-white">
@@ -96,8 +102,19 @@
         }
     </script>
 
+    <footer>
+        <div class="text-center">
+            <p>Effort Tracking System Application</p>
+            <p>@DateTime.Now</p>
+        </div>
+    </footer>
+
     @Scripts.Render("~/bundles/jquery")
     @Scripts.Render("~/bundles/bootstrap")
     @RenderSection("scripts", required: false)
+    <script src="~/Scripts/jquery-3.4.1.js"></script>
+    <script src="~/Scripts/jquery.validate.js"></script>
+    <script src="~/Scripts/jquery.validate.unobtrusive.js"></script>
+
 </body>
 </html>

@@ -1,10 +1,11 @@
-﻿using CommonDataAccess.Models;
+﻿using Common.Models;
 using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Data;
 using System.Linq;
 using System.Text;
+using Common;
 
 namespace CommonDataAccess
 {
@@ -14,6 +15,11 @@ namespace CommonDataAccess
         public AdminDataAccess(string connectionString)
         {
             _connectionString = connectionString;
+        }
+
+        public Admin GetAdminDetails(string email)
+        {
+            throw new NotImplementedException();
         }
 
         public List<Admin> GetAllAdmins()
@@ -40,7 +46,8 @@ namespace CommonDataAccess
                                     AdminName = reader["admin_name"].ToString(),
                                     AdminEmail = reader["admin_email"].ToString(),
                                     HashedPassword = reader["hashed_password"].ToString(),
-                                    Role = reader["role"].ToString()
+                                    Role = reader["role"].ToString(),
+                                    SaltValue = reader["salt_value"].ToString()
                                 };
 
                                 admins.Add(admin);

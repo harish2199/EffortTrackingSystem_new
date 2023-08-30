@@ -7,7 +7,8 @@ BEGIN
         designation,
         user_email,
         hashed_password,
-        role
+        role,
+		salt_value
     FROM
         Users;
 END;
@@ -86,6 +87,7 @@ CREATE OR ALTER PROCEDURE AddUser
     @user_email varchar(100),
     @hashed_password VARCHAR(max),
     @role varchar(10) = 'User',
+	@salt_value NVARCHAR(max),
     @message varchar(100) OUTPUT
 AS
 BEGIN
@@ -93,8 +95,8 @@ BEGIN
     IF NOT EXISTS (SELECT 1 FROM Users WHERE user_email = @user_email)
     BEGIN
         -- Insert user if email doesn't exist
-        INSERT INTO Users (user_name, designation, user_email, hashed_password, role)
-        VALUES (@user_name, @designation, @user_email, @hashed_password, @role);
+        INSERT INTO Users (user_name, designation, user_email, hashed_password, role,salt_value)
+        VALUES (@user_name, @designation, @user_email, @hashed_password, @role, @salt_value);
 
         SET @message = 'User inserted successfully!';
     END

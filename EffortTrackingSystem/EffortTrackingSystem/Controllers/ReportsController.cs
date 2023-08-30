@@ -1,5 +1,4 @@
-﻿using CommonDataAccess;
-using CommonDataAccess.Models;
+﻿using Common.Models;
 using EffortTrackingSystem.Attributes;
 using log4net;
 using System;
@@ -14,43 +13,71 @@ namespace EffortTrackingSystem.Controllers
     [CommonAuthorize]
     public class ReportsController : BaseController
     {
-        public ActionResult Index(int? year, int? month, int? day, int? user, string export, int page = 1)
+        public ActionResult Index(int? year, int? month, int? day, int? user, int? project, string export, int page = 1)
         {
             try
             {
-                ViewBag.SuccessMessage = TempData["ExportMessage"] as string;
+                //ViewBag.SuccessMessage = TempData["ExportMessage"] as string;
                 ViewBag.ErrorMessage = TempData["ErrorMessage"] as string;
-                // Preserve selected options during pagination
                 ViewBag.Year = year;
                 ViewBag.Month = month;
                 ViewBag.Day = day;
                 ViewBag.User = user;
+                ViewBag.Project = project;
 
                 bool isAdmin = IsAdminUser();
                 int userId = GetCurrentUserId();
 
                 ViewBag.ShowUserDropdown = isAdmin;
                 ViewBag.Users = _userDataAccess.GetAllUsers().ToList();
+                ViewBag.Projects = _projectDataAccess.GetProjects().ToList();
 
                 List<Effort> efforts = new List<Effort>();
                 if (!isAdmin)
                 {
                     efforts = _effortDataAccess.GetEffortsByDate(year, month, day)
-                        .Where(e => e.AssignTask.UserId == userId)
+                        .Where(e => e.AssignTask.User.UserId == userId)
                         .ToList();
                 }
                 else if (user.HasValue)
                 {
                     efforts = _effortDataAccess.GetEffortsByDate(year, month, day)
-                        .Where(e => e.AssignTask.UserId == user)
+                        .Where(e => e.AssignTask.User.UserId == user)
                         .ToList();
                 }
-                else
+                if (project.HasValue)
                 {
-                    efforts = _effortDataAccess.GetEffortsByDate(year, month, day)
+                    if (!isAdmin)
+                    {
+                        efforts = _effortDataAccess.GetEffortsByDate(year, month, day)
+                        .Where(e => e.AssignTask.User.UserId == userId && e.AssignTask.Project.ProjectId == project).ToList();
+                    }
+                    else if (user.HasValue)
+                    {
+                        efforts = _effortDataAccess.GetEffortsByDate(year, month, day)
+                        .Where(e => e.AssignTask.User.UserId == user && e.AssignTask.Project.ProjectId == project).ToList();
+                    }
+                    else
+                    {
+                        efforts = _effortDataAccess.GetEffortsByDate(year, month, day)
+                        .Where(e => e.AssignTask.Project.ProjectId == project)
                         .ToList();
+                    }
                 }
-
+                if (year == null || month == null || day == null || user == null || project == null)
+                {
+                    if (isAdmin)
+                    {
+                        efforts = _effortDataAccess.GetEffortsByDate(year, month, day)
+                        .ToList();
+                    }
+                    else
+                    {
+                        efforts = _effortDataAccess.GetEffortsByDate(year, month, day)
+                            .Where(e => e.AssignTask.User.UserId == userId)
+                        .ToList();
+                    }
+                }
                 /* Pagination */
                 int pageSize = 5;
                 int total = efforts.Count;
@@ -62,7 +89,6 @@ namespace EffortTrackingSystem.Controllers
                 {
                     return ExportToCsv(efforts);
                 }
-
                 return View(efforts);
             }
             catch (Exception ex)

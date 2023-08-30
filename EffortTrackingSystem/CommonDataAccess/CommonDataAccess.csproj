@@ -48,25 +48,7 @@
     <Compile Include="AdminDataAccess.cs" />
     <Compile Include="AssignTaskDataAccess.cs" />
     <Compile Include="EffortDataAccess.cs" />
-    <Compile Include="Interfaces\IAdminDataAccess.cs" />
-    <Compile Include="Interfaces\IAssignTaskDataAccess.cs" />
-    <Compile Include="Interfaces\IEffortDataAccess.cs" />
-    <Compile Include="Interfaces\ILeaveDataAccess.cs" />
-    <Compile Include="Interfaces\IProjectDataAccess.cs" />
-    <Compile Include="Interfaces\IShiftChangeDataAccess.cs" />
-    <Compile Include="Interfaces\IShiftDataAccess.cs" />
-    <Compile Include="Interfaces\ITaskDataAccess.cs" />
-    <Compile Include="Interfaces\IUserDataAccess.cs" />
     <Compile Include="LeaveDataAccess.cs" />
-    <Compile Include="Models\Admin.cs" />
-    <Compile Include="Models\AssignTask.cs" />
-    <Compile Include="Models\Effort.cs" />
-    <Compile Include="Models\Leave.cs" />
-    <Compile Include="Models\Project.cs" />
-    <Compile Include="Models\Shift.cs" />
-    <Compile Include="Models\ShiftChange.cs" />
-    <Compile Include="Models\Task.cs" />
-    <Compile Include="Models\User.cs" />
     <Compile Include="ProjectDataAccess.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ShiftChangeDataAccess.cs" />
@@ -77,6 +59,11 @@
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <ProjectReference Include="..\Common\Common.csproj">
+      <Project>{5a333b7e-ec1c-4966-8aa7-f76222ace4ef}</Project>
+      <Name>Common</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

@@ -4,7 +4,8 @@ using System.Data.SqlClient;
 using System.Data;
 using System.Linq;
 using System.Text;
-using CommonDataAccess.Models;
+using Common.Models;
+using Common;
 
 namespace CommonDataAccess
 {

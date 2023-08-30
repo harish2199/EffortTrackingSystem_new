@@ -1,0 +1,210 @@
+﻿@model Common.Models.AssignTask
+<head>
+    @Styles.Render("~/Content/css")
+    @Scripts.Render("~/bundles/modernizr")
+</head>
+
+<form id="updateTaskForm" action="/admin/TaskAction" method="post">
+    <div class="container">
+        <div class="row gx-3">
+            <div class="col-md-6">
+                <div class="mb-3">
+                    <select class="form-select form-select-sm update-dropdown" name="UserId" required>
+                        <option selected>Select User</option>
+                        @if (ViewBag.AssignedTasks != null)
+                        {
+                            foreach (var user in ViewBag.AssignedTasks)
+                            {
+                                <option value="@user.User.UserId"
+                                        data-assigntaskid="@user.AssignTaskId"
+                                        data-projectid="@user.Project.ProjectId"
+                                        data-taskid="@user.Task.TaskId"
+                                        data-shiftid="@user.ShiftId"
+                                        data-startdate="@user.StartDate.ToString("yyyy-MM-dd")"
+                                        data-enddate="@user.EndDate.ToString("yyyy-MM-dd")">
+                                    @user.User.UserName
+                                </option>
+                            }
+                        }
+                    </select>
+                    @Html.ValidationMessageFor(model => model.UserId, "", new { @class = "text-danger" })
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="mb-3">
+                    <select class="form-select form-select-sm update-dropdown" name="ProjectId" required>
+                        <option selected>Select Project</option>
+                        @if (ViewBag.Projects != null)
+                        {
+                            foreach (var project in ViewBag.Projects)
+                            {
+                                <option value="@project.ProjectId">@project.ProjectName</option>
+                            }
+                        }
+                    </select>
+                    @Html.ValidationMessageFor(model => model.ProjectId, "", new { @class = "text-danger" })
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="mb-3">
+                    <select class="form-select form-select-sm update-dropdown" name="TaskId" required>
+                        <option selected>Select Task</option>
+                        @if (ViewBag.Tasks != null)
+                        {
+                            foreach (var task in ViewBag.Tasks)
+                            {
+                                <option value="@task.TaskId">@task.TaskName</option>
+                            }
+                        }
+                    </select>
+                    @Html.ValidationMessageFor(model => model.TaskId, "", new { @class = "text-danger" })
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="mb-3">
+                    <select class="form-select form-select-sm update-dropdown" name="ShiftId" required>
+                        <option selected>Select Shift</option>
+                        @if (ViewBag.Shifts != null)
+                        {
+                            foreach (var shift in ViewBag.Shifts)
+                            {
+                                <option value="@shift.ShiftId">@shift.ShiftName</option>
+                            }
+                        }
+                    </select>
+                    @Html.ValidationMessageFor(model => model.ShiftId, "", new { @class = "text-danger" })
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="mb-3">
+                    <label for="updateStartDate"><strong>Start Date:</strong></label>
+                    <input type="date" class="form-control form-select-sm" name="VisibleStartDate" id="updateStartDate" required>
+                    @Html.ValidationMessageFor(model => model.StartDate, "", new { @class = "text-danger" })
+                    <input type="hidden" name="StartDate" id="hiddenStartDate" value="">
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="mb-3">
+                    <label for="updateEndDate"><strong>End Date:</strong></label>
+                    <input type="date" class="form-control form-select-sm" name="EndDate" id="updateEndDate" min="@DateTime.Now.ToString("yyyy-MM-dd")">
+                    @Html.ValidationMessageFor(model => model.EndDate, "", new { @class = "text-danger" })
+                    <input type="hidden" name="Status" value="Pending">
+                </div>
+            </div>
+            <div class="col-md-10">
+                <div class="d-grid">
+                    <button type="submit" class="btn btn-sm btn-secondary" name="action" value="update">Update</button>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="d-grid">
+                    <a href="#" class="btn btn-sm btn-primary" onclick="resetForm('updateTaskForm')" data-bs-dismiss="modal" aria-label="Close">Discard</a>
+                </div>
+            </div>
+        </div>
+        <!-- Add hidden input fields for blocked fields -->
+        <input type="hidden" name="AssignTaskId" id="AssignTaskId" value="">
+        <input type="hidden" name="ProjectId" id="originalProjectId" value="">
+        <input type="hidden" name="TaskId" id="originalTaskId" value="">
+        <input type="hidden" name="ShiftId" id="originalShiftId" value="">
+    </div>
+</form>
+
+<script src="~/bundles/jquery"></script>
+<script src="~/bundles/bootstrap"></script>
+<script>
+    $(document).ready(function () {
+        function populateFields(selectedOption) {
+            var form = $("#updateTaskForm"); 
+
+            if (selectedOption.val() !== "Select User") {
+                var assignTaskId = selectedOption.data("assigntaskid");
+                var projectId = selectedOption.data("projectid");
+                var taskId = selectedOption.data("taskid");
+                var shiftId = selectedOption.data("shiftid");
+                var startDate = selectedOption.data("startdate");
+                var endDate = selectedOption.data("enddate");
+
+                form.find("select[name='ProjectId']").val(projectId);
+                form.find("select[name='TaskId']").val(taskId);
+                form.find("select[name='ShiftId']").val(shiftId);
+                form.find("input[name='VisibleStartDate']").val(startDate);
+                form.find("input[name='EndDate']").val(endDate);
+
+                form.find("input[name='EndDate']").prop("disabled", false);
+                form.find("input[name='EndDate']").val(endDate);
+
+                // Set hidden input values for blocked fields
+                form.find("#originalProjectId").val(projectId);
+                form.find("#originalTaskId").val(taskId);
+                form.find("#originalShiftId").val(shiftId);
+                form.find("#hiddenStartDate").val(startDate);
+                form.find("#AssignTaskId").val(assignTaskId);
+            } else {
+                form.find("select[name='ProjectId']").val("Select Project");
+                form.find("select[name='TaskId']").val("Select Task");
+                form.find("select[name='ShiftId']").val("Select Shift");
+                form.find("input[name='VisibleStartDate']").val(startDate);
+                form.find("input[name='EndDate']").val("");
+
+                // Disable and clear End Date when no user is selected
+                form.find("input[name='EndDate']").prop("disabled", true);
+                form.find("input[name='EndDate']").val("");
+
+                // Clear hidden input values for blocked fields
+                form.find("#originalProjectId").val("");
+                form.find("#originalTaskId").val("");
+                form.find("#originalShiftId").val("");
+                form.find("#hiddenStartDate").val("");
+                form.find("#AssignTaskId").val(assignTaskId);
+            }
+        }
+
+        // Populate fields when any form field changes
+        $('select[name="UserId"]').on("change", function () {
+            var selectedOption = $('.update-dropdown').find("option:selected");
+            populateFields(selectedOption);
+        });
+        // Allow only End Date to be editable
+        /*$("select[name='ProjectId'], select[name='TaskId'], select[name='ShiftId'], input[name='VisibleStartDate']").prop("disabled", true);*/
+        $("#updateTaskForm").find("select[name='ProjectId'], select[name='TaskId'], select[name='ShiftId'], input[name='VisibleStartDate'],input[name='EndDate']").prop("disabled", true);
+
+        // Reset the form fields
+        function resetForm(formId) {
+            if (formId === 'updateTaskForm') {
+                $("select[name='UserId']").val("Select User");
+                $("select[name='ProjectId']").val("Select Project");
+                $("select[name='TaskId']").val("Select Task");
+                $("select[name='ShiftId']").val("Select Shift");
+                $("input[name='VisibleStartDate']").val("");
+                $("input[name='EndDate']").val("");
+                $("#" + formId)[0].reset();
+
+                // Clear hidden input values for blocked fields
+                $("#originalProjectId").val("");
+                $("#originalTaskId").val("");
+                $("#originalShiftId").val("");
+                $("#hiddenStartDate").val("");
+            }
+        }
+        $("#updateTaskForm").on("submit", function (e) {
+            var selectedOption = $('.update-dropdown').find("option:selected");
+            if (selectedOption.val() === "Select User") {
+                e.preventDefault(); // Prevent form submission
+                $("select[name='UserId']").siblings(".text-danger").text("User ID is required.");
+            } else {
+                $("select[name='UserId']").siblings(".text-danger").text("");
+                var visibleStartDate = $("input[name='VisibleStartDate']").val();
+                $("#hiddenStartDate").val(visibleStartDate); // Set hidden input for submission
+                var currentAssignTaskId = $("#AssignTaskId").val();
+                if (currentAssignTaskId) {
+                    $("input[name='AssignTaskId']").val(currentAssignTaskId);
+                }
+            }
+        });
+        // Handle Discard button click
+        $(".discard-btn").on("click", function () {
+            resetForm('updateTaskForm');
+        });
+    });
+</script>

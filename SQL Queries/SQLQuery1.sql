@@ -6,15 +6,16 @@ create table Admin(
 	admin_name varchar(50),
 	admin_email varchar(100),
 	hashed_password VARCHAR(max),
+	salt_value NVARCHAR(max),
 	role varchar(10) default 'Admin'
 )
-
 create table Users(
 	user_id int identity primary key,
 	user_name varchar(50),
 	designation varchar(50),
 	user_email varchar(100),
 	hashed_password VARCHAR(max),
+	salt_value NVARCHAR(max),
 	role varchar(10) default 'User'
 );
 
@@ -131,11 +132,13 @@ select * from Shift_Change
 select * from effort
 select * from Assign_Task
 
-delete Effort where effort_id = 30
-delete Shift_Change where shift_Change_id = 8
-delete leave where leave_id = 5
-delete Assign_Task where assign_task_id = 4
-update Assign_Task set end_date = '2023-08-27' where assign_task_id = 1
-update leave set status = 'Approved' where leave_id=3
-update Shift_Change set status = 'Approved' where shift_Change_id=5
+delete Users where user_id = 7
+delete Effort where effort_id = 34
+delete Shift_Change where shift_Change_id = 11
+delete leave where leave_id = 9
+delete Assign_Task where assign_task_id = 12
+
+update Assign_Task set end_date = '2023-09-02' where assign_task_id = 2
+update leave set status = 'Pending' where leave_id=9
+update Shift_Change set status = 'Pending' where shift_Change_id=12
 update Effort set status = 'Pending' where effort_id = 27

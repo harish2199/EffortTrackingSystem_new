@@ -1,4 +1,4 @@
-﻿using CommonDataAccess.Models;
+﻿using Common.Models;
 using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
@@ -6,6 +6,8 @@ using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Security.Cryptography;
+using Common;
 
 namespace CommonDataAccess
 {
@@ -42,7 +44,8 @@ namespace CommonDataAccess
                                     Designation = reader["designation"].ToString(),
                                     UserEmail = reader["user_email"].ToString(),
                                     HashedPassword = reader["hashed_password"].ToString(),
-                                    Role = reader["role"].ToString()
+                                    Role = reader["role"].ToString(),
+                                    SaltValue = reader["salt_value"].ToString()
                                 };
 
                                 users.Add(user);
@@ -63,17 +66,24 @@ namespace CommonDataAccess
         {
             try
             {
+                string SaltValue = GenerateSalt();
+
                 using (SqlConnection connection = new SqlConnection(_connectionString))
                 {
                     using (SqlCommand command = new SqlCommand("AddUser", connection))
                     {
                         command.CommandType = CommandType.StoredProcedure;
 
+                        string hashedpasswordstring = Convert.ToBase64String(GetHash(user.HashedPassword, SaltValue));
+
                         command.Parameters.AddWithValue("@user_name", user.UserName);
                         command.Parameters.AddWithValue("@designation", user.Designation);
                         command.Parameters.AddWithValue("@user_email", user.UserEmail);
-                        command.Parameters.AddWithValue("@hashed_password", user.HashedPassword);
+                        //command.Parameters.AddWithValue("@hashed_password", user.HashedPassword);
+                        command.Parameters.AddWithValue("@hashed_password", hashedpasswordstring);
                         command.Parameters.AddWithValue("@role", user.Role);
+                        command.Parameters.AddWithValue("@salt_value", SaltValue);
+
 
                         SqlParameter messageParameter = new SqlParameter("@message", SqlDbType.VarChar, 100);
                         messageParameter.Direction = ParameterDirection.Output;
@@ -97,6 +107,8 @@ namespace CommonDataAccess
         {
             try
             {
+                
+
                 using (SqlConnection connection = new SqlConnection(_connectionString))
                 {
                     connection.Open();
@@ -127,20 +139,27 @@ namespace CommonDataAccess
             }
         }
 
-        /*private string HashPassword(string password)
-       {
-           using (SHA256 sha256 = SHA256.Create())
-           {
-               byte[] bytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(password));
-               StringBuilder builder = new StringBuilder();
 
-               for (int i = 0; i < bytes.Length; i++)
-               {
-                   builder.Append(bytes[i].ToString("x2"));
-               }
+        public string GenerateSalt()
+        {
+            byte[] salt = new byte[16];
+            new RNGCryptoServiceProvider().GetBytes(salt);
+            return Convert.ToBase64String(salt);
+        }
 
-               return builder.ToString();
-           }
-       }*/
+        public byte[] GetHash(string PlainPassword, string Salt)
+        {
+            byte[] byteArray = Encoding.Unicode.GetBytes(String.Concat(Salt, PlainPassword));
+            using (SHA256Managed sha256 = new SHA256Managed())
+            {
+                byte[] hashedBytes = sha256.ComputeHash(byteArray);
+                return hashedBytes;
+            }
+        }
+
+        public User GetUserDetails(string email)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

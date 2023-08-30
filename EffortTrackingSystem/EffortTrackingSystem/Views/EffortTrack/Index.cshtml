@@ -1,4 +1,4 @@
-﻿@model  CommonDataAccess.Models.AssignTask
+﻿@model  Common.Models.AssignTask
 
 @{
     ViewBag.Title = "Index";
@@ -42,7 +42,7 @@
                                 <select name="ShiftId" class="form-control">
                                     @foreach (var shift in ViewBag.Shifts)
                                     {
-                                        <option value="@shift.ShiftId">@shift.ShiftName (@shift.StartTime - @shift.EndTime)</option>
+                                        <option value="@shift.ShiftId">@shift.ShiftName (@shift.StartTime.ToString(@"hh\:mm") - @shift.EndTime.ToString(@"hh\:mm"))</option>
                                     }
                                 </select>
                             </div>
