@@ -13,6 +13,7 @@ namespace NewCommonDataAccess
     public class TaskDataAccess : ITaskDataAccess
     {
         private readonly string _connectionString;
+
         public TaskDataAccess(string connectionString)
         {
             _connectionString = connectionString;
@@ -23,7 +24,6 @@ namespace NewCommonDataAccess
             try
             {
                 using (EffortTrackingSystemEntities _dbcontext = new EffortTrackingSystemEntities())
-                //using (EffortTrackingSystemEntities _dbcontext = new EffortTrackingSystemEntities(_connectionString))
                 {
                     var tasks = (from t in _dbcontext.Tasks
                                  select new Common.Models.Task

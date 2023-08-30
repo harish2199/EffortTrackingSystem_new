@@ -1,29 +1,37 @@
-﻿using Common.Models;
+﻿using Common;
+using Common.Models;
 using System;
 using System.Collections.Generic;
-using System.Data.SqlClient;
-using System.Data;
 using System.Linq;
-using System.Text;
-using Common;
-using NewCommonDataAccess;
 
 namespace NewCommonDataAccess
 {
+    /// <summary>
+    /// DataAccess class for managing Leave data.
+    /// </summary>
     public class LeaveDataAccess : ILeaveDataAccess
     {
         private readonly string _connectionString;
+
+        /// <summary>
+        /// Initializes a new instance of the LeaveDataAccess class.
+        /// </summary>
+        /// <param name="connectionString">The database connection string.</param>
         public LeaveDataAccess(string connectionString)
         {
             _connectionString = connectionString;
         }
 
+        /// <summary>
+        /// Get a list of pending leave requests.
+        /// </summary>
+        /// <returns>List of pending leave requests.</returns>
+        /// <exception cref="Exception">An error occurred while fetching pending leaves.</exception>
         public List<Common.Models.Leave> GetPendingLeaves()
         {
             try
-            { 
+            {
                 using (EffortTrackingSystemEntities _dbcontext = new EffortTrackingSystemEntities())
-                //using (EffortTrackingSystemEntities _dbcontext = new EffortTrackingSystemEntities(_connectionString))
                 {
                     var pendingLeaves = (from l in _dbcontext.Leaves.Where(l => l.status == "Pending")
                                          select new Common.Models.Leave
@@ -48,12 +56,17 @@ namespace NewCommonDataAccess
             }
         }
 
+        /// <summary>
+        /// Submit a leave request.
+        /// </summary>
+        /// <param name="leave">The leave object to be submitted.</param>
+        /// <returns>Submission status message.</returns>
+        /// <exception cref="Exception">An error occurred while submitting leave.</exception>
         public string SubmitLeave(Common.Models.Leave leave)
         {
             try
             {
                 using (EffortTrackingSystemEntities _dbcontext = new EffortTrackingSystemEntities())
-                //using (EffortTrackingSystemEntities _dbcontext = new EffortTrackingSystemEntities(_connectionString))
                 {
                     // One leave per day
                     bool leaveExists = _dbcontext.Leaves.Any(l =>
@@ -102,13 +115,18 @@ namespace NewCommonDataAccess
             }
         }
 
-
+        /// <summary>
+        /// Approve or reject a leave request.
+        /// </summary>
+        /// <param name="leaveId">The ID of the leave request.</param>
+        /// <param name="newStatus">The new status for the leave request.</param>
+        /// <returns>Status message of the operation.</returns>
+        /// <exception cref="Exception">An error occurred while approving or rejecting leave.</exception>
         public string ApproveOrRejectLeave(int leaveId, string newStatus)
         {
             try
             {
                 using (EffortTrackingSystemEntities _dbcontext = new EffortTrackingSystemEntities())
-                //using (EffortTrackingSystemEntities _dbcontext = new EffortTrackingSystemEntities(_connectionString))
                 {
                     var existingLeave = _dbcontext.Leaves.FirstOrDefault(u => u.leave_id == leaveId);
                     if (existingLeave == null)
@@ -137,5 +155,28 @@ namespace NewCommonDataAccess
             }
         }
 
+        /// <summary>
+        /// Get the user name associated with a leave request.
+        /// </summary>
+        /// <param name="leaveid">The ID of the leave request.</param>
+        /// <returns>User name of the leave applicant.</returns>
+        /// <exception cref="Exception">An error occurred while fetching user Name who applied for leave.</exception>
+        public string GetLeaveUserName(int leaveid)
+        {
+            try
+            {
+                using (EffortTrackingSystemEntities _dbcontext = new EffortTrackingSystemEntities())
+                {
+                    string userName = (from u in _dbcontext.Leaves.Where(u => u.leave_id == leaveid)
+                                       select u.User.user_name).FirstOrDefault();
+
+                    return userName;
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("An error occurred while fetching user Name who applied for leave.", ex);
+            }
+        }
     }
 }

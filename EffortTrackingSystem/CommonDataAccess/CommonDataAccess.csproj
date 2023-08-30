@@ -45,7 +45,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AdminDataAccess.cs" />
     <Compile Include="AssignTaskDataAccess.cs" />
     <Compile Include="EffortDataAccess.cs" />
     <Compile Include="LeaveDataAccess.cs" />

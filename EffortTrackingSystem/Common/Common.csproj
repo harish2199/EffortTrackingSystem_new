@@ -42,7 +42,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Interfaces\IAdminDataAccess.cs" />
     <Compile Include="Interfaces\IAssignTaskDataAccess.cs" />
     <Compile Include="Interfaces\IEffortDataAccess.cs" />
     <Compile Include="Interfaces\ILeaveDataAccess.cs" />
@@ -51,7 +50,6 @@
     <Compile Include="Interfaces\IShiftDataAccess.cs" />
     <Compile Include="Interfaces\ITaskDataAccess.cs" />
     <Compile Include="Interfaces\IUserDataAccess.cs" />
-    <Compile Include="Models\Admin.cs" />
     <Compile Include="Models\AssignTask.cs" />
     <Compile Include="Models\Effort.cs" />
     <Compile Include="Models\Leave.cs" />

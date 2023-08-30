@@ -12,5 +12,6 @@ namespace Common
         string SubmitShiftChange(ShiftChange shiftChange);
         List<ShiftChange> GetPendingShiftChange();
         string ApproveOrRejectShiftChange(int shiftChangeId, string newStatus);
+        string GetShiftChangeUserName(int shiftChangeId);
     }
 }

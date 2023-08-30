@@ -27,7 +27,7 @@
             @{
                 string name = (string)Session["Name"];
                 string role = (string)Session["Role"];
-                string adminRole = System.Configuration.ConfigurationManager.AppSettings["adminRole"];
+                string isAdmin = System.Configuration.ConfigurationManager.AppSettings["IsAdmin"];
             }
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
                 <ul class="navbar-nav me-auto mb-2 mb-lg-0">
@@ -40,7 +40,7 @@
                     <li class="nav-item">
                         <a class="nav-link" href="/Reports/Index">Reports</a>
                     </li>
-                    @if (role.ToLower() == adminRole.ToLower())
+                    @if (role.ToLower() == isAdmin.ToLower())
                     {
                         <li class="nav-item">
                             <a class="nav-link" href="/admin/Index">Admin</a>

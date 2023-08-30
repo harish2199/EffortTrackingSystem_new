@@ -1,30 +1,37 @@
-﻿using Common.Models;
+﻿using Common;
+using Common.Models;
 using System;
 using System.Collections.Generic;
-using System.Data.SqlClient;
-using System.Data;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Common;
-using NewCommonDataAccess;
 
 namespace NewCommonDataAccess
 {
+    /// <summary>
+    /// DataAccess class for managing Shift Change data.
+    /// </summary>
     public class ShiftChangeDataAccess : IShiftChangeDataAccess
     {
         private readonly string _connectionString;
+
+        /// <summary>
+        /// Initializes a new instance of the ShiftChangeDataAccess class.
+        /// </summary>
+        /// <param name="connectionString">The database connection string.</param>
         public ShiftChangeDataAccess(string connectionString)
         {
             _connectionString = connectionString;
         }
 
-        public List<ShiftChange> GetPendingShiftChange()
+        /// <summary>
+        /// Get a list of pending shift change requests.
+        /// </summary>
+        /// <returns>List of pending shift change requests.</returns>
+        /// <exception cref="Exception">An error occurred while fetching pending shift changes.</exception>
+        public List<Common.Models.ShiftChange> GetPendingShiftChange()
         {
             try
             {
                 using (EffortTrackingSystemEntities _dbcontext = new EffortTrackingSystemEntities())
-                //using (EffortTrackingSystemEntities _dbcontext = new EffortTrackingSystemEntities(_connectionString))
                 {
                     var pendingShiftChanges = (from s in _dbcontext.Shift_Change.Where(s => s.status == "Pending")
                                                select new Common.Models.ShiftChange
@@ -59,12 +66,41 @@ namespace NewCommonDataAccess
             }
         }
 
+        /// <summary>
+        /// Get the user name associated with a shift change request.
+        /// </summary>
+        /// <param name="shiftChangeId">The ID of the shift change request.</param>
+        /// <returns>User name of the shift change applicant.</returns>
+        /// <exception cref="Exception">An error occurred while fetching user name who applied for shift changes.</exception>
+        public string GetShiftChangeUserName(int shiftChangeId)
+        {
+            try
+            {
+                using (EffortTrackingSystemEntities _dbcontext = new EffortTrackingSystemEntities())
+                {
+                    string userName = (from u in _dbcontext.Shift_Change.Where(u => u.shift_Change_id == shiftChangeId)
+                                       select u.User.user_name).FirstOrDefault();
+
+                    return userName;
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("An error occurred while fetching user Name who applied for shift changes.", ex);
+            }
+        }
+
+        /// <summary>
+        /// Submit a shift change request.
+        /// </summary>
+        /// <param name="shiftChange">The shift change object to be submitted.</param>
+        /// <returns>Submission status message.</returns>
+        /// <exception cref="Exception">An error occurred while submitting shift change.</exception>
         public string SubmitShiftChange(ShiftChange shiftChange)
         {
             try
             {
                 using (EffortTrackingSystemEntities _dbcontext = new EffortTrackingSystemEntities())
-                //using (EffortTrackingSystemEntities _dbcontext = new EffortTrackingSystemEntities(_connectionString))
                 {
                     bool isSameShift = _dbcontext.Assign_Task.Any(a =>
                                 a.user_id == shiftChange.UserId && a.shift_id == shiftChange.NewShiftId);
@@ -72,6 +108,7 @@ namespace NewCommonDataAccess
                     {
                         return "Cannot submit a shift change request to the same shift that is currently assigned.";
                     }
+
                     // One shift change per day
                     bool shiftChangeExists = _dbcontext.Shift_Change.Any(s =>
                         s.user_id == shiftChange.UserId && s.date == shiftChange.Date
@@ -92,7 +129,7 @@ namespace NewCommonDataAccess
 
                     // Check if a leave request 
                     var leaveRequest = _dbcontext.Leaves.FirstOrDefault(l =>
-                        l.user_id == shiftChange.UserId  &&
+                        l.user_id == shiftChange.UserId &&
                         l.date == shiftChange.Date &&
                         (l.status == "Approved" || l.status == "Pending")
                     );
@@ -104,17 +141,9 @@ namespace NewCommonDataAccess
                         }
                         else
                         {
-                            return "Shift change can not be submitted when leave request is pending.";
+                            return "Shift change cannot be submitted when a leave request is pending.";
                         }
                     }
-                    /*// Check leave request
-                    bool leaveSubmitted = _dbcontext.Leaves.Any(l =>
-                        l.user_id == shiftChange.UserId && l.date == shiftChange.Date
-                    );
-                    if (leaveSubmitted)
-                    {
-                        return "A leave request has been submitted for the selected date.";
-                    }*/
 
                     var newShiftChange = new NewCommonDataAccess.Shift_Change
                     {
@@ -138,12 +167,18 @@ namespace NewCommonDataAccess
             }
         }
 
+        /// <summary>
+        /// Approve or reject a shift change request.
+        /// </summary>
+        /// <param name="shiftChangeId">The ID of the shift change request.</param>
+        /// <param name="newStatus">The new status for the shift change request.</param>
+        /// <returns>Status message of the operation.</returns>
+        /// <exception cref="Exception">An error occurred while approving or rejecting shift change.</exception>
         public string ApproveOrRejectShiftChange(int shiftChangeId, string newStatus)
         {
             try
             {
                 using (EffortTrackingSystemEntities _dbcontext = new EffortTrackingSystemEntities())
-                //using (EffortTrackingSystemEntities _dbcontext = new EffortTrackingSystemEntities(_connectionString))
                 {
                     var existingShiftChange = _dbcontext.Shift_Change.FirstOrDefault(u => u.shift_Change_id == shiftChangeId);
                     if (existingShiftChange == null)
@@ -170,6 +205,5 @@ namespace NewCommonDataAccess
                 throw new Exception("An error occurred while approving or rejecting shift change.", ex);
             }
         }
-
     }
 }

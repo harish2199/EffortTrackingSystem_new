@@ -56,7 +56,6 @@
     <Compile Include="Admin.cs">
       <DependentUpon>EffortModel.tt</DependentUpon>
     </Compile>
-    <Compile Include="AdminDataAccess.cs" />
     <Compile Include="AssignTaskDataAccess.cs" />
     <Compile Include="Assign_Task.cs">
       <DependentUpon>EffortModel.tt</DependentUpon>

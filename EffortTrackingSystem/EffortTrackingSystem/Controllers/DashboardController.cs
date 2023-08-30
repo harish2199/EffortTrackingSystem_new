@@ -1,6 +1,5 @@
 ﻿using Common.Models;
 using EffortTrackingSystem.Attributes;
-using log4net;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,22 +7,28 @@ using System.Web.Mvc;
 
 namespace EffortTrackingSystem.Controllers
 {
-    [UserAuthorize]
+    /// <summary>
+    /// Controller for the user dashboard.
+    /// </summary>
+    [CommonAuthorize]
     public class DashboardController : BaseController
     {
+        /// <summary>
+        /// Displays the user dashboard.
+        /// </summary>
+        /// <returns>Dashboard view.</returns>
         public ActionResult Index()
         {
             try
             {
                 ViewBag.LoggedIn = TempData["LoggedIn"] as string;
                 int userId = GetCurrentUserId();
-                
 
-                List<AssignTask> presentTasks = GetPresentTasksForUser(userId);
-                List<Effort> previousEfforts = GetLastWeekApprovedEffortsForUser(userId);
-
+                AssignTask Model = _assignTaskDataAccess.GetPresentTaskForUser(userId);
+                List<Effort> previousEfforts = GetLastWeekEffortsForUser(userId);
                 ViewBag.PreviousEfforts = previousEfforts;
-                return View(presentTasks);
+
+                return View(Model);
             }
             catch (Exception ex)
             {
@@ -32,30 +37,35 @@ namespace EffortTrackingSystem.Controllers
             }
         }
 
+        /// <summary>
+        /// Gets the current user's ID from the session.
+        /// </summary>
+        /// <returns>The current user's ID.</returns>
         private int GetCurrentUserId()
         {
             return (int)Session["Id"];
         }
 
-        private List<AssignTask> GetPresentTasksForUser(int userId)
-        {
-            DateTime today = DateTime.Now.Date;
-            return _assignTaskDataAccess.GetAssignedTasksById(userId)
-                .Where(a => a.StartDate <= today && a.EndDate >= today)
-                .ToList();
-        }
-
-        private List<Effort> GetLastWeekApprovedEffortsForUser(int userId)
+        /// <summary>
+        /// Retrieves approved efforts from the last week for the user.
+        /// </summary>
+        /// <param name="userId">The user's ID.</param>
+        /// <returns>List of approved efforts from the last week.</returns>
+        private List<Effort> GetLastWeekEffortsForUser(int userId)
         {
             DateTime today = DateTime.Now.Date;
             DateTime lastWeekStart = today.AddDays(-(int)today.DayOfWeek - 6);
             DateTime lastWeekEnd = lastWeekStart.AddDays(4);
 
-            return _effortDataAccess.GetEfforts()
-                .Where(e => e.AssignTask.User.UserId == userId && e.Status == "Approved" && e.SubmittedDate >= lastWeekStart && e.SubmittedDate <= lastWeekEnd)
+            return _effortDataAccess.GetApprovedEffortsOfUser(userId)
+                .Where(e => e.SubmittedDate >= lastWeekStart && e.SubmittedDate <= lastWeekEnd)
                 .ToList();
         }
 
+        /// <summary>
+        /// Handles errors occurring in the dashboard.
+        /// </summary>
+        /// <param name="ex">The exception that occurred.</param>
         private void HandleDashboardError(Exception ex)
         {
             _log.Error("An error occurred in the Dashboard: " + ex.Message);

@@ -4,14 +4,20 @@ using log4net;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Web;
 using System.Web.Mvc;
 
 namespace EffortTrackingSystem.Controllers
 {
-    [UserAuthorize]
+    /// <summary>
+    /// Controller for tracking effort, leave, and shift change submissions.
+    /// </summary>
+    [CommonAuthorize]
     public class EffortTrackController : BaseController
     {
+        /// <summary>
+        /// Displays the Effort Tracking page.
+        /// </summary>
+        /// <returns>Effort Tracking view.</returns>
         public ActionResult Index()
         {
             try
@@ -20,8 +26,10 @@ namespace EffortTrackingSystem.Controllers
 
                 int userId = GetCurrentUserId();
                 ViewBag.UserId = userId;
-                AssignTask presentTask = GetPresentTasksForUser(userId);
+
+                AssignTask presentTask = _assignTaskDataAccess.GetPresentTaskForUser(userId);
                 ViewBag.Shifts = _shiftDataAccess.GetShifts().ToList();
+
                 return View(presentTask);
             }
             catch (Exception ex)
@@ -31,6 +39,11 @@ namespace EffortTrackingSystem.Controllers
             }
         }
 
+        /// <summary>
+        /// Submits an effort.
+        /// </summary>
+        /// <param name="effort">The effort to submit.</param>
+        /// <returns>Action result.</returns>
         [HttpPost]
         public ActionResult SubmitEffort(Effort effort)
         {
@@ -47,7 +60,7 @@ namespace EffortTrackingSystem.Controllers
                 {
                     string subject = $"New Effort Submission";
                     string body = $"New Effort submitted by {Session["Name"]}";
-                    SendEmailTo(subject, body);
+                    SendEmail(subject, body);
                 }
 
                 TempData["message"] = message;
@@ -60,6 +73,11 @@ namespace EffortTrackingSystem.Controllers
             }
         }
 
+        /// <summary>
+        /// Submits a leave request.
+        /// </summary>
+        /// <param name="leave">The leave request.</param>
+        /// <returns>Action result.</returns>
         [HttpPost]
         public ActionResult SubmitLeave(Leave leave)
         {
@@ -75,7 +93,7 @@ namespace EffortTrackingSystem.Controllers
                 {
                     string subject = $"Leave Request";
                     string body = $"Leave requested submitted by {Session["Name"]}";
-                    SendEmailTo(subject, body);
+                    SendEmail(subject, body);
                 }
 
                 TempData["message"] = message;
@@ -88,6 +106,11 @@ namespace EffortTrackingSystem.Controllers
             }
         }
 
+        /// <summary>
+        /// Submits a shift change request.
+        /// </summary>
+        /// <param name="shiftChange">The shift change request.</param>
+        /// <returns>Action result.</returns>
         [HttpPost]
         public ActionResult SubmitShiftChange(ShiftChange shiftChange)
         {
@@ -102,8 +125,8 @@ namespace EffortTrackingSystem.Controllers
                 if (message.Contains("submitted successfully"))
                 {
                     string subject = $"Shift Change Submission";
-                    string body = $"Shift changed requested submitted by {Session["Name"]}";
-                    SendEmailTo(subject, body);
+                    string body = $"Shift change requested submitted by {Session["Name"]}";
+                    SendEmail(subject, body);
                 }
 
                 TempData["message"] = message;
@@ -116,18 +139,20 @@ namespace EffortTrackingSystem.Controllers
             }
         }
 
-
+        /// <summary>
+        /// Gets the current user's ID from the session.
+        /// </summary>
+        /// <returns>The current user's ID.</returns>
         private int GetCurrentUserId()
         {
             return (int)Session["Id"];
         }
-        private AssignTask GetPresentTasksForUser(int userId)
-        {
-            DateTime today = DateTime.Now.Date;
-            return _assignTaskDataAccess.GetAssignedTasksById(userId)
-                .Where(a => a.StartDate <= today && a.EndDate >= today)
-                .FirstOrDefault();
-        }
+
+        /// <summary>
+        /// Handles errors by logging and setting an error message.
+        /// </summary>
+        /// <param name="ex">The exception that occurred.</param>
+        /// <param name="errorMessage">The custom error message.</param>
         private void HandleError(Exception ex, string errorMessage)
         {
             _log.Error($"{errorMessage} {ex.Message}");

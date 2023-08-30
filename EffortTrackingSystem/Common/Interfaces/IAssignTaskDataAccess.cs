@@ -10,7 +10,8 @@ namespace Common
     public interface IAssignTaskDataAccess
     {
         string AssignTask(AssignTask assignTask);
-        List<AssignTask> GetAssignedTasksById(int userId);
+        List<AssignTask> GetAllAssignedTasks();
+        AssignTask GetPresentTaskForUser(int userId);
         string UpdateAssignTask(AssignTask assignTask);
     }
 }

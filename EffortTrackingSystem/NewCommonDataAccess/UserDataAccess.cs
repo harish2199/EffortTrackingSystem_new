@@ -13,14 +13,28 @@ using System.Data.Entity;
 
 namespace NewCommonDataAccess
 {
+    /// <summary>
+    /// DataAccess class for managing user data.
+    /// </summary>
     public class UserDataAccess : IUserDataAccess
     {
         private readonly string _connectionString;
+
+        /// <summary>
+        /// Initializes a new instance of the UserDataAccess class.
+        /// </summary>
+        /// <param name="connectionString">The database connection string.</param>
         public UserDataAccess(string connectionString)
         {
             _connectionString = connectionString;
         }
 
+        /// <summary>
+        /// Get user details based on email.
+        /// </summary>
+        /// <param name="email">User's email.</param>
+        /// <returns>User details.</returns>
+        /// <exception cref="Exception">An error occurred while fetching user.</exception>
         public Common.Models.User GetUserDetails(string email)
         {
             try
@@ -28,17 +42,16 @@ namespace NewCommonDataAccess
                 using (EffortTrackingSystemEntities _dbcontext = new EffortTrackingSystemEntities())
                 {
                     var user = (from a in _dbcontext.Users.Where(u => u.user_email == email)
-                                 select new Common.Models.User
-                                 {
-                                     UserId = a.user_id,
-                                     UserName = a.user_name,
-                                     Designation = a.designation,
-                                     UserEmail = a.user_email,
-                                     HashedPassword = a.hashed_password,
-                                     Role = a.role,
-                                     SaltValue = a.salt_value
-                                 }).FirstOrDefault();
-
+                                select new Common.Models.User
+                                {
+                                    UserId = a.user_id,
+                                    UserName = a.user_name,
+                                    Designation = a.designation,
+                                    UserEmail = a.user_email,
+                                    HashedPassword = a.hashed_password,
+                                    Role = a.role,
+                                    SaltValue = a.salt_value
+                                }).FirstOrDefault();
 
                     return user;
                 }
@@ -48,14 +61,19 @@ namespace NewCommonDataAccess
                 throw new Exception("An error occurred while fetching user.", ex);
             }
         }
+
+        /// <summary>
+        /// Get all users with the "user" role.
+        /// </summary>
+        /// <returns>List of users with "user" role.</returns>
+        /// <exception cref="Exception">An error occurred while fetching users.</exception>
         public List<Common.Models.User> GetAllUsers()
         {
             try
             {
                 using (EffortTrackingSystemEntities _dbcontext = new EffortTrackingSystemEntities())
-                //using (EffortTrackingSystemEntities _dbcontext = new EffortTrackingSystemEntities(_connectionString))
                 {
-                    var users = (from a in _dbcontext.Users
+                    var users = (from a in _dbcontext.Users.Where(u => u.role.ToLower() == "user")
                                  select new Common.Models.User
                                  {
                                      UserId = a.user_id,
@@ -67,7 +85,6 @@ namespace NewCommonDataAccess
                                      SaltValue = a.salt_value
                                  }).ToList();
 
-                    
                     return users;
                 }
             }
@@ -77,13 +94,17 @@ namespace NewCommonDataAccess
             }
         }
 
-        
+        /// <summary>
+        /// Add a new user.
+        /// </summary>
+        /// <param name="user">User object to be added.</param>
+        /// <returns>Message indicating the result of the operation.</returns>
+        /// <exception cref="Exception">An error occurred while adding a user.</exception>
         public string AddUser(Common.Models.User user)
         {
             try
             {
                 using (EffortTrackingSystemEntities _dbcontext = new EffortTrackingSystemEntities())
-                //using (EffortTrackingSystemEntities _dbcontext = new EffortTrackingSystemEntities(_connectionString))
                 {
                     string saltValue = GenerateSalt();
                     byte[] hashedPassword = GetHash(user.HashedPassword, saltValue);
@@ -117,12 +138,17 @@ namespace NewCommonDataAccess
             }
         }
 
+        /// <summary>
+        /// Update an existing user.
+        /// </summary>
+        /// <param name="user">User object to be updated.</param>
+        /// <returns>Message indicating the result of the operation.</returns>
+        /// <exception cref="Exception">An error occurred while updating a user.</exception>
         public string UpdateUser(Common.Models.User user)
         {
             try
             {
                 using (EffortTrackingSystemEntities _dbcontext = new EffortTrackingSystemEntities())
-                //using (EffortTrackingSystemEntities _dbcontext = new EffortTrackingSystemEntities(_connectionString))
                 {
                     var existingUser = _dbcontext.Users.FirstOrDefault(u => u.user_email == user.UserEmail);
                     if (existingUser == null)
@@ -146,23 +172,47 @@ namespace NewCommonDataAccess
             }
         }
 
+        /// <summary>
+        /// Generate a random salt value.
+        /// </summary>
+        /// <returns>Generated salt value.</returns>
+        /// <exception cref="Exception">Error generating salt.</exception>
         public string GenerateSalt()
         {
-            byte[] salt = new byte[16];
-            new RNGCryptoServiceProvider().GetBytes(salt);
-            return Convert.ToBase64String(salt);
-        }
-
-        public byte[] GetHash(string PlainPassword, string Salt)
-        {
-            byte[] byteArray = Encoding.Unicode.GetBytes(String.Concat(Salt, PlainPassword));
-            using (SHA256Managed sha256 = new SHA256Managed())
+            try
             {
-                byte[] hashedBytes = sha256.ComputeHash(byteArray);
-                return hashedBytes;
+                byte[] salt = new byte[16];
+                new RNGCryptoServiceProvider().GetBytes(salt);
+                return Convert.ToBase64String(salt);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error generating salt.", ex);
             }
         }
 
-        
+        /// <summary>
+        /// Compute the hash of a password combined with a salt value.
+        /// </summary>
+        /// <param name="plainPassword">Plain text password.</param>
+        /// <param name="salt">Salt value.</param>
+        /// <returns>Computed hash value.</returns>
+        /// <exception cref="Exception">Error getting hash.</exception>
+        public byte[] GetHash(string plainPassword, string salt)
+        {
+            try
+            {
+                byte[] byteArray = Encoding.Unicode.GetBytes(String.Concat(salt, plainPassword));
+                using (SHA256Managed sha256 = new SHA256Managed())
+                {
+                    byte[] hashedBytes = sha256.ComputeHash(byteArray);
+                    return hashedBytes;
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error getting hash.", ex);
+            }
+        }
     }
 }

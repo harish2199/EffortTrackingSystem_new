@@ -1,4 +1,4 @@
-﻿@model List<Common.Models.AssignTask>
+﻿@model Common.Models.AssignTask
 @{
     ViewBag.Title = "Index";
     Layout = "~/Views/Shared/_Layout.cshtml";
@@ -20,23 +20,13 @@
                     Assigned Task
                 </div>
                 <div class="card-body">
-                    @if (Model != null && Model.Count > 0)
+                    @if (Model != null)
                     {
-                        foreach (var item in Model)
-                        {
-                            if (item.Project != null && item.Task != null && item.Shift != null)
-                            {
-                                <p class="summary-info"><strong>Project:</strong> <span class="label label-info">@item.Project.ProjectName</span></p>
-                                <p class="summary-info"><strong>Task:</strong> <span class="label label-info">@item.Task.TaskName</span></p>
-                                <p class="summary-info"><strong>Shift:</strong> <span class="label label-info">@item.Shift.ShiftName</span></p>
-                                <p class="summary-info"><strong>Start Date:</strong> <span class="label label-info">@item.StartDate.ToString("yyyy-MM-dd")</span></p>
-                                <p class="summary-info"><strong>End Date:</strong> <span class="label label-info">@item.EndDate.ToString("yyyy-MM-dd")</span></p>
-                            }
-                            else
-                            {
-                                <p>Some properties are null.</p>
-                            }
-                        }
+                        <p class="summary-info"><strong>Project:</strong> <span class="label label-info">@Model.Project.ProjectName</span></p>
+                        <p class="summary-info"><strong>Task:</strong> <span class="label label-info">@Model.Task.TaskName</span></p>
+                        <p class="summary-info"><strong>Shift:</strong> <span class="label label-info">@Model.Shift.ShiftName</span></p>
+                        <p class="summary-info"><strong>Start Date:</strong> <span class="label label-info">@Model.StartDate.ToString("yyyy-MM-dd")</span></p>
+                        <p class="summary-info"><strong>End Date:</strong> <span class="label label-info">@Model.EndDate.ToString("yyyy-MM-dd")</span></p>
                     }
                     else
                     {

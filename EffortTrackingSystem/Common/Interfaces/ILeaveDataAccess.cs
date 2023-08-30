@@ -12,5 +12,6 @@ namespace Common
         string SubmitLeave(Leave leave);
         List<Leave> GetPendingLeaves();
         string ApproveOrRejectLeave(int leaveId, string newStatus);
+        string GetLeaveUserName(int leaveid);
     }
 }

@@ -10,6 +10,9 @@ using log4net;
 
 namespace EffortTrackingSystem.Controllers
 {
+    /// <summary>
+    /// Base controller for common functionality and properties.
+    /// </summary>
     public class BaseController : Controller
     {
         protected readonly string _connectionString;
@@ -20,7 +23,6 @@ namespace EffortTrackingSystem.Controllers
         protected readonly IShiftDataAccess _shiftDataAccess;
         protected readonly IProjectDataAccess _projectDataAccess;
         protected readonly ITaskDataAccess _taskDataAccess;
-        protected readonly IAdminDataAccess _adminDataAccess;
         protected readonly IUserDataAccess _userDataAccess;
         protected readonly ILog _log;
 
@@ -34,11 +36,14 @@ namespace EffortTrackingSystem.Controllers
             _shiftDataAccess = new ShiftDataAccess(_connectionString);
             _projectDataAccess = new ProjectDataAccess(_connectionString);
             _taskDataAccess = new TaskDataAccess(_connectionString);
-            _adminDataAccess = new AdminDataAccess(_connectionString);
             _userDataAccess = new UserDataAccess(_connectionString);
             _log = LogManager.GetLogger(typeof(BaseController));
         }
 
+        /// <summary>
+        /// Executes before an action method is executed to check for the connection string.
+        /// </summary>
+        /// <param name="filterContext">Action executing context.</param>
         protected override void OnActionExecuting(ActionExecutingContext filterContext)
         {
             if (_connectionString == null)
@@ -49,29 +54,44 @@ namespace EffortTrackingSystem.Controllers
             base.OnActionExecuting(filterContext);
         }
 
-        protected void SendEmailTo(string subject, string body)
+        /// <summary>
+        /// Sends an email with the specified subject and body.
+        /// </summary>
+        /// <param name="subject">Email subject.</param>
+        /// <param name="body">Email body.</param>
+        protected void SendEmail(string subject, string body)
         {
-            string smtpclent = ConfigurationManager.AppSettings["smtpClient"];
-            string mailSender = ConfigurationManager.AppSettings["MailSender"];
-            string senderPassword = ConfigurationManager.AppSettings["SenderPassword"];
-            string mailReceiver = ConfigurationManager.AppSettings["MailReceiver"];
-
-            using (SmtpClient smtpClient = new SmtpClient(smtpclent))
+            try
             {
-                smtpClient.Port = 587;
-                smtpClient.Credentials = new NetworkCredential(mailSender, senderPassword);
-                smtpClient.EnableSsl = true;
+                string smtpServer = ConfigurationManager.AppSettings["smtpClient"];
+                string mailSender = ConfigurationManager.AppSettings["MailSender"];
+                string senderPassword = ConfigurationManager.AppSettings["SenderPassword"];
+                string mailReceiver = ConfigurationManager.AppSettings["MailReceiver"];
 
-                using (MailMessage mailMessage = new MailMessage())
+                using (SmtpClient client = new SmtpClient(smtpServer))
                 {
-                    mailMessage.From = new MailAddress(mailSender);
-                    mailMessage.Subject = subject;
-                    mailMessage.Body = body;
-                    mailMessage.To.Add(mailReceiver);
+                    client.Port = 587;
+                    client.Credentials = new NetworkCredential(mailSender, senderPassword);
+                    client.EnableSsl = true;
 
-                    smtpClient.Send(mailMessage);
+                    using (MailMessage mailMessage = new MailMessage())
+                    {
+                        mailMessage.From = new MailAddress(mailSender);
+                        mailMessage.Subject = subject;
+                        mailMessage.Body = body;
+                        mailMessage.To.Add(mailReceiver);
+
+                        client.Send(mailMessage);
+                    }
                 }
             }
+            catch (Exception ex)
+            {
+                _log.Error("An error occurred:", ex);
+                TempData["ErrorMessage"] = "An error occurred while sending the email!";
+                RedirectToAction("Error", "Home");
+            }
         }
+
     }
 }

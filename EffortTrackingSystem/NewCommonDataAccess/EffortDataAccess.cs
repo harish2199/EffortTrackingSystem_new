@@ -1,31 +1,169 @@
 ﻿using Common.Models;
 using System;
 using System.Collections.Generic;
-using System.Data.SqlClient;
 using System.Data;
 using System.Linq;
-using System.Text;
 using Common;
-using NewCommonDataAccess;
 
 namespace NewCommonDataAccess
 {
+    /// <summary>
+    /// DataAccess class for managing effort tracking in an effort tracking system.
+    /// </summary>
     public class EffortDataAccess : IEffortDataAccess
     {
         private readonly string _connectionString;
+
+        /// <summary>
+        /// Initializes a new instance of the EffortDataAccess class.
+        /// </summary>
+        /// <param name="connectionString">The connection string to the database.</param>
         public EffortDataAccess(string connectionString)
         {
             _connectionString = connectionString;
         }
 
-        public List<Common.Models.Effort> GetEfforts()
+        /// <summary>
+        /// Retrieves filtered efforts of a specific user based on provided criteria.
+        /// </summary>
+        /// <param name="userId">The ID of the user whose efforts are to be retrieved.</param>
+        /// <param name="year">Optional year filter.</param>
+        /// <param name="month">Optional month filter.</param>
+        /// <param name="day">Optional day filter.</param>
+        /// <param name="project">Optional project filter.</param>
+        /// <returns>List of Effort instances representing filtered efforts.</returns>
+        /// <exception cref="Exception">Thrown when an error occurs while fetching efforts.</exception>
+        public List<Common.Models.Effort> GetFilteredEffortsOfUser(int userId, int? year = null, int? month = null, int? day = null, int? project = null)
         {
             try
             {
                 using (EffortTrackingSystemEntities _dbcontext = new EffortTrackingSystemEntities())
-                //using (EffortTrackingSystemEntities _dbcontext = new EffortTrackingSystemEntities(_connectionString))
                 {
-                    var getEfforts = (from e in _dbcontext.Efforts
+                    var query = (from e in _dbcontext.Efforts.Where(e => e.Assign_Task.user_id == userId)
+                                 where e.status == "Approved"
+                                 && (!year.HasValue || (e.submitted_date.HasValue && e.submitted_date.Value.Year == year.Value))
+                                 && (!month.HasValue || (e.submitted_date.HasValue && e.submitted_date.Value.Month == month.Value))
+                                 && (!day.HasValue || (e.submitted_date.HasValue && e.submitted_date.Value.Day == day.Value))
+                                 && (!project.HasValue || (e.Assign_Task.project_id == project.Value))
+                                 select new Common.Models.Effort
+                                 {
+                                     EffortId = e.effort_id,
+                                     AssignTaskId = (int)e.assign_task_id,
+                                     AssignTask = new AssignTask
+                                     {
+                                         User = new Common.Models.User
+                                         {
+                                             UserId = e.Assign_Task.User.user_id,
+                                             UserName = e.Assign_Task.User.user_name,
+                                         },
+                                         Project = new Common.Models.Project
+                                         {
+                                             ProjectId = e.Assign_Task.Project.project_id,
+                                             ProjectName = e.Assign_Task.Project.project_name,
+                                         },
+                                         Task = new Common.Models.Task
+                                         {
+                                             TaskName = e.Assign_Task.Task.task_name,
+                                         }
+                                     },
+                                     Shift = new Common.Models.Shift
+                                     {
+                                         ShiftName = e.Shift.shift_name,
+                                         StartTime = e.Shift.start_time,
+                                         EndTime = e.Shift.end_time
+                                     },
+
+                                     HoursWorked = e.hours_worked,
+                                     SubmittedDate = e.submitted_date.HasValue ? e.submitted_date.Value : DateTime.MinValue,
+                                     Status = e.status
+                                 }).ToList();
+
+                    return query;
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("An error occurred while fetching efforts by date.", ex);
+            }
+        }
+        
+        /// <summary>
+        /// Retrieves filtered efforts of all user based on provided criteria.
+        /// </summary>
+        /// <param name="year">Optional year filter.</param>
+        /// <param name="month">Optional month filter.</param>
+        /// <param name="day">Optional day filter.</param>
+        /// <param name="project">Optional project filter.</param>
+        /// <returns>List of Effort instances representing filtered efforts.</returns>
+        /// <exception cref="Exception">Thrown when an error occurs while fetching efforts.</exception>
+        public List<Common.Models.Effort> GetFilteredEffortsOfAllUsers(int? year = null, int? month = null, int? day = null, int? project = null)
+        {
+            try
+            {
+                using (EffortTrackingSystemEntities _dbcontext = new EffortTrackingSystemEntities())
+                {
+
+                    var query = (from e in _dbcontext.Efforts.Where(e => e.Assign_Task.User.role.ToLower() == "user")
+                                 where e.status == "Approved"
+                                 && (!year.HasValue || (e.submitted_date.HasValue && e.submitted_date.Value.Year == year.Value))
+                                 && (!month.HasValue || (e.submitted_date.HasValue && e.submitted_date.Value.Month == month.Value))
+                                 && (!day.HasValue || (e.submitted_date.HasValue && e.submitted_date.Value.Day == day.Value))
+                                 && (!project.HasValue || (e.Assign_Task.project_id == project.Value))
+                                 select new Common.Models.Effort
+                                 {
+                                     EffortId = e.effort_id,
+                                     AssignTaskId = (int)e.assign_task_id,
+                                     AssignTask = new AssignTask
+                                     {
+                                         User = new Common.Models.User
+                                         {
+                                             UserId = e.Assign_Task.User.user_id,
+                                             UserName = e.Assign_Task.User.user_name,
+                                         },
+                                         Project = new Common.Models.Project
+                                         {
+                                             ProjectId = e.Assign_Task.Project.project_id,
+                                             ProjectName = e.Assign_Task.Project.project_name,
+                                         },
+                                         Task = new Common.Models.Task
+                                         {
+                                             TaskName = e.Assign_Task.Task.task_name,
+                                         }
+                                     },
+                                     Shift = new Common.Models.Shift
+                                     {
+                                         ShiftName = e.Shift.shift_name,
+                                         StartTime = e.Shift.start_time,
+                                         EndTime = e.Shift.end_time
+                                     },
+
+                                     HoursWorked = e.hours_worked,
+                                     SubmittedDate = e.submitted_date.HasValue ? e.submitted_date.Value : DateTime.MinValue,
+                                     Status = e.status
+                                 }).ToList();
+
+                    return query;
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("An error occurred while fetching filtered efforts.", ex);
+            }
+        }
+
+        /// <summary>
+        /// Retrieves the list of approved efforts associated with a specific user.
+        /// </summary>
+        /// <param name="userId">The ID of the user whose approved efforts are to be retrieved.</param>
+        /// <returns>List of Effort instances representing approved efforts of the user.</returns>
+        /// <exception cref="Exception">Thrown when an error occurs while fetching approved efforts.</exception>
+        public List<Common.Models.Effort> GetApprovedEffortsOfUser(int userId)
+        {
+            try
+            {
+                using (EffortTrackingSystemEntities _dbcontext = new EffortTrackingSystemEntities())
+                {
+                    var getEfforts = (from e in _dbcontext.Efforts.Where(e => e.Assign_Task.user_id == userId && e.status == "Approved")
                                       select new Common.Models.Effort
                                       {
                                           EffortId = e.effort_id,
@@ -64,58 +202,89 @@ namespace NewCommonDataAccess
                 throw new Exception("An error occurred while fetching efforts.", ex);
             }
         }
-        public List<Common.Models.Effort> GetEffortsByDate(int? year = null, int? month = null, int? day = null)
+
+        /// <summary>
+        /// Retrieves the list of pending efforts associated with all regular users.
+        /// </summary>
+        /// <returns>List of Effort instances representing pending efforts of regular users.</returns>
+        /// <exception cref="Exception">Thrown when an error occurs while fetching pending efforts.</exception>
+        public List<Common.Models.Effort> GetPendingEffortsOfUsers()
         {
             try
             {
                 using (EffortTrackingSystemEntities _dbcontext = new EffortTrackingSystemEntities())
                 {
-                    var query = (from e in _dbcontext.Efforts
-                                where e.status == "Approved"
-                                && (!year.HasValue || (e.submitted_date.HasValue && e.submitted_date.Value.Year == year.Value))
-                                && (!month.HasValue || (e.submitted_date.HasValue && e.submitted_date.Value.Month == month.Value))
-                                && (!day.HasValue || (e.submitted_date.HasValue && e.submitted_date.Value.Day == day.Value))
-                                select new Common.Models.Effort
-                                {
-                                    EffortId = e.effort_id,
-                                    AssignTaskId = (int)e.assign_task_id,
-                                    AssignTask = new AssignTask
-                                    {
-                                        User = new Common.Models.User
-                                        {
-                                            UserId = e.Assign_Task.User.user_id,
-                                            UserName = e.Assign_Task.User.user_name,
-                                        },
-                                        Project = new Common.Models.Project
-                                        {
-                                            ProjectId = e.Assign_Task.Project.project_id,
-                                            ProjectName = e.Assign_Task.Project.project_name,
-                                        },
-                                        Task = new Common.Models.Task
-                                        {
-                                            TaskName = e.Assign_Task.Task.task_name,
-                                        }
-                                    },
-                                    Shift = new Common.Models.Shift
-                                    {
-                                        ShiftName = e.Shift.shift_name,
-                                        StartTime = e.Shift.start_time,
-                                        EndTime = e.Shift.end_time
-                                    },
+                    var getEfforts = (from e in _dbcontext.Efforts.Where(e => e.status == "Pending" && e.Assign_Task.User.role.ToLower() == "user")
+                                      select new Common.Models.Effort
+                                      {
+                                          EffortId = e.effort_id,
+                                          AssignTaskId = (int)e.assign_task_id,
+                                          AssignTask = new AssignTask
+                                          {
+                                              User = new Common.Models.User
+                                              {
+                                                  UserId = e.Assign_Task.User.user_id,
+                                                  UserName = e.Assign_Task.User.user_name,
+                                              },
+                                              Project = new Common.Models.Project
+                                              {
+                                                  ProjectName = e.Assign_Task.Project.project_name,
+                                              },
+                                              Task = new Common.Models.Task
+                                              {
+                                                  TaskName = e.Assign_Task.Task.task_name,
+                                              }
+                                          },
+                                          Shift = new Common.Models.Shift
+                                          {
+                                              ShiftName = e.Shift.shift_name
+                                          },
 
-                                    HoursWorked = e.hours_worked,
-                                    SubmittedDate = e.submitted_date.HasValue ? e.submitted_date.Value : DateTime.MinValue,
-                                    Status = e.status
-                                }).ToList();
+                                          HoursWorked = e.hours_worked,
+                                          SubmittedDate = (DateTime)e.submitted_date,
+                                          Status = e.status
+                                      }).ToList();
 
-                    return query;
+                    return getEfforts;
                 }
             }
             catch (Exception ex)
             {
-                throw new Exception("An error occurred while fetching efforts by date.", ex);
+                throw new Exception("An error occurred while fetching efforts.", ex);
             }
         }
+
+        /// <summary>
+        /// Retrieves the user name associated with a specific effort ID.
+        /// </summary>
+        /// <param name="effortid">The ID of the effort for which the user name is to be retrieved.</param>
+        /// <returns>The user name associated with the given effort ID.</returns>
+        /// <exception cref="Exception">Thrown when an error occurs while fetching the user name.</exception>
+        public string GetEffortUserName(int effortid)
+        {
+            try
+            {
+                using (EffortTrackingSystemEntities _dbcontext = new EffortTrackingSystemEntities())
+                {
+                    string userName = (from u in _dbcontext.Efforts.Where(u => u.effort_id == effortid)
+                                       select u.Assign_Task.User.user_name).FirstOrDefault();
+
+                    return userName;
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("An error occurred while fetching user Name who applied for leave.", ex);
+            }
+        }
+
+        /// <summary>
+        /// Submits an effort entry for a user.
+        /// </summary>
+        /// <param name="effort">The effort details to be submitted.</param>
+        /// <param name="userid">The ID of the user submitting the effort.</param>
+        /// <returns>A message indicating the result of the submission process.</returns>
+        /// <exception cref="Exception">Thrown when an error occurs while submitting the effort.</exception>
         public string SubmitEffort(Common.Models.Effort effort, int userid)
         {
             try
@@ -204,6 +373,13 @@ namespace NewCommonDataAccess
                 throw new Exception("An error occurred while submitting the effort.", ex);
             }
         }
+
+        /// <summary>
+        /// Approves an effort entry.
+        /// </summary>
+        /// <param name="effortId">The ID of the effort entry to be approved.</param>
+        /// <returns>A message indicating the result of the approval process.</returns>
+        /// <exception cref="Exception">Thrown when an error occurs while approving the effort.</exception>
         public string ApproveEffort(int effortId)
         {
             try
