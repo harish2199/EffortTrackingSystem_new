@@ -1,5 +1,6 @@
 ﻿using Common.Models;
 using EffortTrackingSystem.Attributes;
+using EffortTrackingSystem.Filters;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,7 +11,7 @@ namespace EffortTrackingSystem.Controllers
     /// <summary>
     /// Controller for the user dashboard.
     /// </summary>
-    [CommonAuthorize]
+    [MyAuthenticationFilter]
     public class DashboardController : BaseController
     {
         /// <summary>
@@ -24,11 +25,11 @@ namespace EffortTrackingSystem.Controllers
                 ViewBag.LoggedIn = TempData["LoggedIn"] as string;
                 int userId = GetCurrentUserId();
 
-                AssignTask Model = _assignTaskDataAccess.GetPresentTaskForUser(userId);
+                AssignTask model = _assignTaskDataAccess.GetPresentTaskForUser(userId);
                 List<Effort> previousEfforts = GetLastWeekEffortsForUser(userId);
                 ViewBag.PreviousEfforts = previousEfforts;
 
-                return View(Model);
+                return View(model);
             }
             catch (Exception ex)
             {

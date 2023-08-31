@@ -1,5 +1,6 @@
 ﻿using Common.Models;
 using EffortTrackingSystem.Attributes;
+using EffortTrackingSystem.Filters;
 using log4net;
 using NewCommonDataAccess;
 using System;
@@ -15,7 +16,7 @@ namespace EffortTrackingSystem.Controllers
     /// <summary>
     /// Controller for generating and exporting reports.
     /// </summary>
-    [CommonAuthorize]
+    [MyAuthenticationFilter]
     public class ReportsController : BaseController
     {
         /// <summary>

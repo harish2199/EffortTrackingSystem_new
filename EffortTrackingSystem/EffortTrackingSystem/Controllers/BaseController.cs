@@ -7,12 +7,15 @@ using Common;
 //using CommonDataAccess;
 using NewCommonDataAccess;
 using log4net;
+using System.Web.Routing;
 
 namespace EffortTrackingSystem.Controllers
 {
     /// <summary>
     /// Base controller for common functionality and properties.
     /// </summary>
+    [ConnectionStringFilter]
+    [ErrorHandlingFilter]
     public class BaseController : Controller
     {
         protected readonly string _connectionString;
@@ -38,20 +41,6 @@ namespace EffortTrackingSystem.Controllers
             _taskDataAccess = new TaskDataAccess(_connectionString);
             _userDataAccess = new UserDataAccess(_connectionString);
             _log = LogManager.GetLogger(typeof(BaseController));
-        }
-
-        /// <summary>
-        /// Executes before an action method is executed to check for the connection string.
-        /// </summary>
-        /// <param name="filterContext">Action executing context.</param>
-        protected override void OnActionExecuting(ActionExecutingContext filterContext)
-        {
-            if (_connectionString == null)
-            {
-                filterContext.Result = RedirectToAction("ConnectionStringNotFound", "Home");
-            }
-
-            base.OnActionExecuting(filterContext);
         }
 
         /// <summary>
@@ -93,5 +82,58 @@ namespace EffortTrackingSystem.Controllers
             }
         }
 
+        /// <summary>
+        /// Custom action filter to check the presence of a connection string.
+        /// </summary>
+        public class ConnectionStringFilterAttribute : ActionFilterAttribute
+        {
+            /// <summary>
+            /// Executes before an action method is executed to check for the connection string.
+            /// </summary>
+            /// <param name="filterContext">The context for the action being executed.</param>
+            public override void OnActionExecuting(ActionExecutingContext filterContext)
+            {
+                string connectionString = ConfigurationManager.ConnectionStrings?["EffortTrackingSystemEntities"]?.ConnectionString;
+
+                if (connectionString == null)
+                {
+                    filterContext.Result = new RedirectToRouteResult(new RouteValueDictionary
+                {
+                    { "controller", "Home" },
+                    { "action", "ConnectionStringNotFound" }
+                });
+                }
+
+                base.OnActionExecuting(filterContext);
+            }
+        }
+
+        /// <summary>
+        /// Custom exception filter for handling errors and exceptions.
+        /// </summary>
+        public class ErrorHandlingFilterAttribute : HandleErrorAttribute
+        {
+            /// <summary>
+            /// Handles exceptions by logging errors and redirecting to an error page.
+            /// </summary>
+            /// <param name="filterContext">The context for the exception being handled.</param>
+            public override void OnException(ExceptionContext filterContext)
+            {
+                var logger = LogManager.GetLogger(filterContext.Controller.GetType());
+
+                logger.Error("An error occurred:", filterContext.Exception);
+
+                filterContext.Controller.TempData["ErrorMessage"] = "An error occurred!";
+                filterContext.Result = new RedirectToRouteResult(new RouteValueDictionary
+            {
+                { "controller", "Home" },
+                { "action", "Error" }
+            });
+
+                filterContext.ExceptionHandled = true;
+
+                base.OnException(filterContext);
+            }
+        }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using Common.Models;
 using EffortTrackingSystem.Attributes;
+using EffortTrackingSystem.Filters;
 using log4net;
 using System;
 using System.Collections.Generic;
@@ -11,7 +12,7 @@ namespace EffortTrackingSystem.Controllers
     /// <summary>
     /// Controller for tracking effort, leave, and shift change submissions.
     /// </summary>
-    [CommonAuthorize]
+    [MyAuthenticationFilter]
     public class EffortTrackController : BaseController
     {
         /// <summary>
